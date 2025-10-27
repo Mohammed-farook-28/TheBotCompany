@@ -5,52 +5,31 @@ import { useEffect, useRef } from "react"
 const COLOR = "#FFFFFF"
 const HIT_COLOR = "#333333"
 const BACKGROUND_COLOR = "#000000"
-const BALL_COLOR = "#FFFFFF"
-const PADDLE_COLOR = "#FFFFFF"
+const BALL_COLOR = "#00baff"
+const PADDLE_COLOR = "#00baff"
 const LETTER_SPACING = 1
 const WORD_SPACING = 3
 
 const PIXEL_MAP = {
-  T: [
-    [1, 1, 1, 1, 1],
-    [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0],
-  ],
-  H: [
-    [1, 0, 0, 1],
-    [1, 0, 0, 1],
+  P: [
     [1, 1, 1, 1],
     [1, 0, 0, 1],
-    [1, 0, 0, 1],
-  ],
-  E: [
     [1, 1, 1, 1],
     [1, 0, 0, 0],
-    [1, 1, 1, 1],
     [1, 0, 0, 0],
-    [1, 1, 1, 1],
   ],
-  B: [
-    [1, 1, 1, 0],
+  R: [
+    [1, 1, 1, 1],
     [1, 0, 0, 1],
-    [1, 1, 1, 0],
+    [1, 1, 1, 1],
+    [1, 0, 1, 0],
     [1, 0, 0, 1],
-    [1, 1, 1, 0],
   ],
   O: [
     [1, 1, 1, 1],
     [1, 0, 0, 1],
     [1, 0, 0, 1],
     [1, 0, 0, 1],
-    [1, 1, 1, 1],
-  ],
-  C: [
-    [1, 1, 1, 1],
-    [1, 0, 0, 0],
-    [1, 0, 0, 0],
-    [1, 0, 0, 0],
     [1, 1, 1, 1],
   ],
   M: [
@@ -60,40 +39,12 @@ const PIXEL_MAP = {
     [1, 0, 0, 0, 1],
     [1, 0, 0, 0, 1],
   ],
-  P: [
-    [1, 1, 1, 1],
-    [1, 0, 0, 1],
-    [1, 1, 1, 1],
-    [1, 0, 0, 0],
-    [1, 0, 0, 0],
-  ],
-  A: [
-    [0, 1, 1, 0],
-    [1, 0, 0, 1],
-    [1, 1, 1, 1],
-    [1, 0, 0, 1],
-    [1, 0, 0, 1],
-  ],
-  N: [
-    [1, 0, 0, 0, 1],
-    [1, 1, 0, 0, 1],
-    [1, 0, 1, 0, 1],
-    [1, 0, 0, 1, 1],
-    [1, 0, 0, 0, 1],
-  ],
-  Y: [
-    [1, 0, 0, 0, 1],
-    [0, 1, 0, 1, 0],
+  T: [
+    [1, 1, 1, 1, 1],
     [0, 0, 1, 0, 0],
     [0, 0, 1, 0, 0],
     [0, 0, 1, 0, 0],
-  ],
-  W: [
-    [1, 0, 0, 0, 1],
-    [1, 0, 0, 0, 1],
-    [1, 0, 1, 0, 1],
-    [1, 1, 0, 1, 1],
-    [1, 0, 0, 0, 1],
+    [0, 0, 1, 0, 0],
   ],
   I: [
     [1, 1, 1],
@@ -102,12 +53,33 @@ const PIXEL_MAP = {
     [0, 1, 0],
     [1, 1, 1],
   ],
+  N: [
+    [1, 0, 0, 0, 1],
+    [1, 1, 0, 0, 1],
+    [1, 0, 1, 0, 1],
+    [1, 0, 0, 1, 1],
+    [1, 0, 0, 0, 1],
+  ],
+  G: [
+    [1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0],
+    [1, 0, 1, 1, 1],
+    [1, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1],
+  ],
   S: [
     [1, 1, 1, 1],
     [1, 0, 0, 0],
     [1, 1, 1, 1],
     [0, 0, 0, 1],
     [1, 1, 1, 1],
+  ],
+  A: [
+    [0, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
   ],
   L: [
     [1, 0, 0, 0],
@@ -116,19 +88,12 @@ const PIXEL_MAP = {
     [1, 0, 0, 0],
     [1, 1, 1, 1],
   ],
-  R: [
-    [1, 1, 1, 1],
-    [1, 0, 0, 1],
-    [1, 1, 1, 1],
-    [1, 0, 1, 0],
-    [1, 0, 0, 1],
-  ],
-  K: [
-    [1, 0, 0, 1],
-    [1, 0, 1, 0],
-    [1, 1, 0, 0],
-    [1, 0, 1, 0],
-    [1, 0, 0, 1],
+  Y: [
+    [1, 0, 0, 0, 1],
+    [0, 1, 0, 1, 0],
+    [0, 0, 1, 0, 0],
+    [0, 0, 1, 0, 0],
+    [0, 0, 1, 0, 0],
   ],
   U: [
     [1, 0, 0, 1],
@@ -144,54 +109,40 @@ const PIXEL_MAP = {
     [1, 0, 0, 1],
     [1, 1, 1, 0],
   ],
-  G: [
-    [1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0],
-    [1, 0, 1, 1, 1],
-    [1, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1],
-  ],
-  F: [
+  E: [
     [1, 1, 1, 1],
     [1, 0, 0, 0],
     [1, 1, 1, 1],
     [1, 0, 0, 0],
+    [1, 1, 1, 1],
+  ],
+  B: [
+    [1, 1, 1, 1],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+  ],
+  C: [
+    [1, 1, 1, 1],
     [1, 0, 0, 0],
-  ],
-  J: [
-    [0, 0, 1],
-    [0, 0, 1],
-    [0, 0, 1],
-    [1, 0, 1],
-    [1, 1, 1],
-  ],
-  Q: [
-    [1, 1, 1, 1],
-    [1, 0, 0, 1],
-    [1, 0, 0, 1],
-    [1, 0, 1, 1],
-    [1, 1, 1, 1, 1],
-  ],
-  V: [
-    [1, 0, 0, 0, 1],
-    [1, 0, 0, 0, 1],
-    [0, 1, 0, 1, 0],
-    [0, 1, 0, 1, 0],
-    [0, 0, 1, 0, 0],
-  ],
-  X: [
-    [1, 0, 0, 1],
-    [0, 1, 1, 0],
-    [0, 0, 1, 0],
-    [0, 1, 1, 0],
-    [1, 0, 0, 1],
-  ],
-  Z: [
-    [1, 1, 1, 1],
-    [0, 0, 1, 0],
-    [0, 1, 0, 0],
+    [1, 0, 0, 0],
     [1, 0, 0, 0],
     [1, 1, 1, 1],
+  ],
+  K: [
+    [1, 0, 0, 1],
+    [1, 0, 1, 0],
+    [1, 1, 0, 0],
+    [1, 0, 1, 0],
+    [1, 0, 0, 1],
+  ],
+  H: [
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
   ],
 }
 
@@ -219,7 +170,7 @@ interface Paddle {
   isVertical: boolean
 }
 
-export function TheBotCompanyHero() {
+export function PromptingIsAllYouNeed() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pixelsRef = useRef<Pixel[]>([])
   const ballRef = useRef<Ball>({ x: 0, y: 0, dx: 0, dy: 0, radius: 0 })
@@ -233,11 +184,18 @@ export function TheBotCompanyHero() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
+    let isInitialized = false
+
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
       scaleRef.current = Math.min(canvas.width / 1000, canvas.height / 1000)
-      initializeGame()
+      
+      // Only initialize game on first load, not on every resize
+      if (!isInitialized) {
+        initializeGame()
+        isInitialized = true
+      }
     }
 
     const initializeGame = () => {
@@ -247,7 +205,7 @@ export function TheBotCompanyHero() {
       const BALL_SPEED = 6 * scale
 
       pixelsRef.current = []
-      const words = ["THE BOT COMPANY", "WE BREAK IMPOSSIBILITIES"]
+      const words = ["THE BOT COMPANY", "BREAKING IMPOSSIBILITIES"]
 
       const calculateWordWidth = (word: string, pixelSize: number) => {
         return (
@@ -280,6 +238,7 @@ export function TheBotCompanyHero() {
 
       words.forEach((word, wordIndex) => {
         const pixelSize = wordIndex === 0 ? adjustedLargePixelSize : adjustedSmallPixelSize
+        const wordSpacing = wordIndex === 0 ? WORD_SPACING * adjustedLargePixelSize : WORD_SPACING * adjustedSmallPixelSize
         const totalWidth =
           wordIndex === 0
             ? words[0].split(" ").reduce((width, w, index) => {
@@ -299,8 +258,7 @@ export function TheBotCompanyHero() {
 
         let startX = (canvas.width - totalWidth) / 2
 
-        // Handle both lines with proper word spacing
-        word.split(" ").forEach((subWord, subWordIndex) => {
+        word.split(" ").forEach((subWord) => {
           subWord.split("").forEach((letter) => {
             const pixelMap = PIXEL_MAP[letter as keyof typeof PIXEL_MAP]
             if (!pixelMap) return
@@ -316,15 +274,11 @@ export function TheBotCompanyHero() {
             }
             startX += (pixelMap[0].length + LETTER_SPACING) * pixelSize
           })
-          // Add space between words (except for the last word)
-          if (subWordIndex < word.split(" ").length - 1) {
-            startX += WORD_SPACING * pixelSize
-          }
+          startX += wordSpacing
         })
         startY += wordIndex === 0 ? largeTextHeight + spaceBetweenLines : 0
       })
 
-      // Initialize ball position near the top right corner
       const ballStartX = canvas.width * 0.9
       const ballStartY = canvas.height * 0.1
 
@@ -483,10 +437,10 @@ export function TheBotCompanyHero() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full"
-      aria-label="The Bot Company: Fullscreen Pong game with pixel text"
+      className="absolute top-0 left-0 w-full h-full"
+      aria-label="Prompting Is All You Need: Fullscreen Pong game with pixel text"
     />
   )
 }
 
-export default TheBotCompanyHero
+export default PromptingIsAllYouNeed
