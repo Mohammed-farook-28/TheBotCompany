@@ -38,6 +38,7 @@ const PillNav: React.FC<PillNavProps> = ({
   const resolvedPillTextColor = pillTextColor ?? baseColor;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const circleRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const tlRefs = useRef<(gsap.core.Timeline | null)[]>([]);
   const activeTweenRefs = useRef<(gsap.core.Tween | null)[]>([]);
@@ -50,13 +51,27 @@ const PillNav: React.FC<PillNavProps> = ({
   const navRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const shouldStick = scrollY > window.innerHeight * 0.4; // Stick when scrolled past 40% of viewport
-      setIsScrolled(shouldStick);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const heroHeight = window.innerHeight;
+          
+          setScrollY(currentScrollY);
+          
+          // Stick to top when scrolled past 60% of viewport
+          const shouldStick = currentScrollY > heroHeight * 0.6;
+          setIsScrolled(shouldStick);
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -95,15 +110,15 @@ const PillNav: React.FC<PillNavProps> = ({
         tlRefs.current[index]?.kill();
         const tl = gsap.timeline({ paused: true });
 
-        tl.to(circle, { scale: 1.2, xPercent: -50, duration: 2, ease, overwrite: 'auto' }, 0);
+        tl.to(circle, { scale: 1.2, xPercent: -50, duration: 0.6, ease: 'power2.easeOut', overwrite: 'auto' }, 0);
 
         if (label) {
-          tl.to(label, { y: -(h + 8), duration: 2, ease, overwrite: 'auto' }, 0);
+          tl.to(label, { y: -(h + 8), duration: 0.6, ease: 'power2.easeOut', overwrite: 'auto' }, 0);
         }
 
         if (white) {
           gsap.set(white, { y: Math.ceil(h + 100), opacity: 0 });
-          tl.to(white, { y: 0, opacity: 1, duration: 2, ease, overwrite: 'auto' }, 0);
+          tl.to(white, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.easeOut', overwrite: 'auto' }, 0);
         }
 
         tlRefs.current[index] = tl;
@@ -155,8 +170,8 @@ const PillNav: React.FC<PillNavProps> = ({
     if (!tl) return;
     activeTweenRefs.current[i]?.kill();
     activeTweenRefs.current[i] = tl.tweenTo(tl.duration(), {
-      duration: 0.3,
-      ease,
+      duration: 0.2,
+      ease: 'power2.easeOut',
       overwrite: 'auto'
     });
   };
@@ -166,8 +181,8 @@ const PillNav: React.FC<PillNavProps> = ({
     if (!tl) return;
     activeTweenRefs.current[i]?.kill();
     activeTweenRefs.current[i] = tl.tweenTo(0, {
-      duration: 0.2,
-      ease,
+      duration: 0.15,
+      ease: 'power2.easeIn',
       overwrite: 'auto'
     });
   };
@@ -260,63 +275,74 @@ const PillNav: React.FC<PillNavProps> = ({
   return (
     <div 
       ref={navRef}
-      className={`absolute top-[75%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000] transition-all duration-500 ease-in-out ${
+      className={`z-[1000] fixed ${
         isScrolled 
-          ? 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-md border border-white/10 rounded-full' 
+          ? 'bg-black/90 backdrop-blur-md border border-white/10 rounded-full px-4' 
           : 'bg-transparent'
       } ${className}`}
+      style={{
+        willChange: 'transform, background-color, border-color, top, opacity',
+        backfaceVisibility: 'hidden',
+        left: '50%',
+        top: isScrolled ? '40px' : `${Math.max(75 - (scrollY * 0.02), 40)}px`, // Smooth movement from 75% to 40px
+        transform: 'translateX(-50%) translateY(-50%) translateZ(0)',
+        opacity: 1,
+        transition: isScrolled ? 'all 0.3s ease-out' : 'none'
+      }}
     >
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 relative">
+      <div className="relative w-full flex justify-center">
         <nav
-          className="w-full md:w-max flex items-center justify-between md:justify-start box-border"
+          className="flex items-center justify-center box-border"
           aria-label="Primary"
           style={cssVars}
         >
-          {isRouterLink(items?.[0]?.href) ? (
-            <a
-              href={items[0].href}
-              aria-label="Home"
-              onMouseEnter={handleLogoEnter}
-              role="menuitem"
-              ref={el => {
-                logoRef.current = el;
-              }}
-              className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
-              style={{
-                width: 'var(--nav-h)',
-                height: 'var(--nav-h)',
-                background: 'var(--base, #000)'
-              }}
-            >
-              {logo}
-            </a>
-          ) : (
-            <a
-              href={items?.[0]?.href || '#'}
-              aria-label="Home"
-              onMouseEnter={handleLogoEnter}
-              ref={el => {
-                logoRef.current = el;
-              }}
-              className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
-              style={{
-                width: 'var(--nav-h)',
-                height: 'var(--nav-h)',
-                background: 'var(--base, #000)'
-              }}
-            >
-              {logo}
-            </a>
-          )}
+          <div className="flex items-center gap-3 justify-center">
+            {isRouterLink(items?.[0]?.href) ? (
+              <a
+                href={items[0].href}
+                aria-label="Home"
+                onMouseEnter={handleLogoEnter}
+                role="menuitem"
+                ref={el => {
+                  logoRef.current = el;
+                }}
+                className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
+                style={{
+                  width: 'var(--nav-h)',
+                  height: 'var(--nav-h)',
+                  background: 'var(--base, #000)'
+                }}
+              >
+                {logo}
+              </a>
+            ) : (
+              <a
+                href={items?.[0]?.href || '#'}
+                aria-label="Home"
+                onMouseEnter={handleLogoEnter}
+                ref={el => {
+                  logoRef.current = el;
+                }}
+                className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
+                style={{
+                  width: 'var(--nav-h)',
+                  height: 'var(--nav-h)',
+                  background: 'var(--base, #000)'
+                }}
+              >
+                {logo}
+              </a>
+            )}
 
-          <div
-            ref={navItemsRef}
-            className="relative items-center rounded-full hidden md:flex ml-2"
-            style={{
-              height: 'var(--nav-h)',
-              background: 'var(--base, #000)'
-            }}
-          >
+            <div
+              ref={navItemsRef}
+              className="relative items-center rounded-full hidden md:flex"
+              style={{
+                height: 'var(--nav-h)',
+                background: 'var(--base, #000)',
+                marginLeft: '0px'
+              }}
+            >
             <ul
               role="menubar"
               className="list-none flex items-stretch m-0 p-[3px] h-full"
@@ -382,7 +408,12 @@ const PillNav: React.FC<PillNavProps> = ({
                       role="menuitem"
                       href={item.href}
                       className={basePillClasses}
-                      style={pillStyle}
+                      style={{
+                        ...pillStyle,
+                        willChange: 'transform',
+                        backfaceVisibility: 'hidden',
+                        transform: 'translateZ(0)'
+                      }}
                       aria-label={item.ariaLabel || item.label}
                       onMouseEnter={() => handleEnter(i)}
                       onMouseLeave={() => handleLeave(i)}
@@ -393,6 +424,7 @@ const PillNav: React.FC<PillNavProps> = ({
                 );
               })}
             </ul>
+            </div>
           </div>
 
           <button

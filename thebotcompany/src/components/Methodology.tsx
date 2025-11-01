@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import RadialOrbitalTimeline from './ui/radial-orbital-timeline';
+import { methodologyTimelineData } from './ui/methodology-timeline-data';
 
 // Placeholder for RevealOnScroll from 21st.dev
 const RevealOnScroll = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
@@ -39,7 +41,8 @@ const Methodology = () => {
           <div className="w-32 h-px bg-gradient-to-r from-transparent via-[#00baff] to-transparent mx-auto"></div>
         </motion.div>
 
-        <div className="grid md:grid-cols-5 gap-8 mt-20">
+        {/* Traditional Linear Steps - Hidden on larger screens */}
+        <div className="grid md:grid-cols-5 gap-8 mt-20 md:hidden">
           {steps.map((step, index) => (
             <RevealOnScroll key={index} delay={index * 0.1}>
               <div className="relative">
@@ -58,6 +61,48 @@ const Methodology = () => {
               </div>
             </RevealOnScroll>
           ))}
+        </div>
+
+        {/* Interactive Orbital Timeline - Visible on larger screens */}
+        <div className="hidden md:block mt-20">
+          <div className="grid grid-cols-2 gap-16 items-center">
+            {/* Left side - Text content */}
+            <div className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="space-y-6"
+              >
+                <h3 className="text-3xl font-bold text-white leading-tight">
+                  Every project starts with a{' '}
+                  <span className="text-[#00baff]">question.</span>
+                </h3>
+                <p className="text-lg text-white/80 leading-relaxed">
+                  We listen, design with intent, automate what matters, build fast, and keep evolving.
+                </p>
+                <p className="text-lg text-white/80 leading-relaxed">
+                  It's not a pipeline — it's a{' '}
+                  <span className="text-[#00baff] font-semibold">loop</span> that keeps learning with you.
+                </p>
+              </motion.div>
+              
+            </div>
+
+            {/* Right side - Orbital Timeline */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative"
+            >
+              <div className="w-full h-[600px]">
+                <RadialOrbitalTimeline timelineData={methodologyTimelineData} />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,16 +1,25 @@
-import { PromptingIsAllYouNeed } from '@/components/ui/animated-hero-section';
+import { Suspense, lazy, useEffect } from 'react';
 import PillNav from './components/PillNav';
 import Logo from './components/Logo';
-import TrustedBy from './components/TrustedBy';
-import About from './components/About';
-import AIFocus from './components/AIFocus';
-import Methodology from './components/Methodology';
-import Services from './components/Services';
-import Values from './components/Values';
-import ContactForm from './components/ContactForm';
-import CTA from './components/CTA';
-import Footer from './components/Footer';
-import CursorTrail from './components/CursorTrail';
+
+// Lazy load heavy components
+const PromptingIsAllYouNeed = lazy(() => import('@/components/ui/animated-hero-section').then(module => ({ default: module.PromptingIsAllYouNeed })));
+const TrustedBy = lazy(() => import('./components/TrustedBy'));
+const About = lazy(() => import('./components/About'));
+const AIFocus = lazy(() => import('./components/AIFocus'));
+const Methodology = lazy(() => import('./components/Methodology'));
+const Services = lazy(() => import('./components/Services'));
+const Values = lazy(() => import('./components/Values'));
+const ContactForm = lazy(() => import('./components/ContactForm'));
+const CTA = lazy(() => import('./components/CTA'));
+const Footer = lazy(() => import('./components/Footer'));
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="w-8 h-8 border-2 border-[#00baff] border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 function App() {
   const navigationItems = [
@@ -20,14 +29,37 @@ function App() {
     { label: 'Contact', href: '#contact' }
   ];
 
+  // Scroll to top on every page load/refresh
+  useEffect(() => {
+    // Always start from the top, regardless of URL hash
+    window.scrollTo(0, 0);
+    
+    // Also ensure scroll position is reset after a brief delay
+    // This handles cases where components might affect scroll position
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+
+    // Handle browser back/forward navigation
+    const handlePopState = () => {
+      window.scrollTo(0, 0);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      {/* Optional cursor trail effect */}
-      <CursorTrail />
-
       {/* Animated Hero Section with Pong Game */}
       <div id="home" className="relative h-screen">
-        <PromptingIsAllYouNeed />
+        <Suspense fallback={<LoadingSpinner />}>
+          <PromptingIsAllYouNeed />
+        </Suspense>
         
         {/* Navigation positioned in center of hero section */}
         <PillNav
@@ -45,21 +77,39 @@ function App() {
       </div>
 
       {/* Main sections */}
-      <TrustedBy />
+      <Suspense fallback={<div className="h-32 bg-black" />}>
+        <TrustedBy />
+      </Suspense>
       <div id="about">
-        <About />
+        <Suspense fallback={<div className="h-96 bg-black" />}>
+          <About />
+        </Suspense>
       </div>
-      <AIFocus />
-      <Methodology />
+      <Suspense fallback={<div className="h-64 bg-black" />}>
+        <AIFocus />
+      </Suspense>
+      <Suspense fallback={<div className="h-64 bg-black" />}>
+        <Methodology />
+      </Suspense>
       <div id="services">
-        <Services />
+        <Suspense fallback={<div className="h-96 bg-black" />}>
+          <Services />
+        </Suspense>
       </div>
-      <Values />
+      <Suspense fallback={<div className="h-64 bg-black" />}>
+        <Values />
+      </Suspense>
       <div id="contact">
-        <ContactForm />
+        <Suspense fallback={<div className="h-96 bg-black" />}>
+          <ContactForm />
+        </Suspense>
       </div>
-      <CTA />
-      <Footer />
+      <Suspense fallback={<div className="h-32 bg-black" />}>
+        <CTA />
+      </Suspense>
+      <Suspense fallback={<div className="h-32 bg-black" />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Stepper, { Step } from './Stepper';
+import RotatingText from './ui/rotating-text';
 import { User, Mail, Phone, MessageSquare, Bot, Zap, Globe } from 'lucide-react';
 
 const ContactForm = () => {
@@ -20,12 +21,55 @@ const ContactForm = () => {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showCompanyField, setShowCompanyField] = useState(false);
+  const [shake, setShake] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const triggerShake = () => {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  };
+
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        return formData.name.trim() !== '';
+      case 2:
+        return formData.email.trim() !== '' && formData.email.includes('@');
+      case 3:
+        return true; // Phone is optional
+      case 4:
+        return true; // Personal/Business selection is always valid
+      case 5:
+        return formData.projectType !== '';
+      case 6:
+        return formData.description.trim() !== '';
+      default:
+        return true;
+    }
+  };
+
+  const handleStepChange = () => {
+    // Step change handler - can be used for analytics or other side effects
+  };
+
+  const handleNext = (step: number) => {
+    if (!validateStep(step)) {
+      triggerShake();
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = () => {
+    // Validate all required fields before submission
+    if (!formData.name.trim() || !formData.email.trim() || !formData.description.trim()) {
+      triggerShake();
+      return;
+    }
+    
     console.log('Form submitted:', formData);
     setIsSubmitted(true);
     // Here you would typically send the data to your backend
@@ -93,24 +137,30 @@ const ContactForm = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 md:mb-6">
-            Let's build your{' '}
-            <span className="text-[#00baff]">next project</span>
-          </h2>
+          <RotatingText 
+            words={['idea', 'dream', 'app', 'vision']}
+            interval={2000}
+            baseText="Let's build your next"
+            highlightColor="#00baff"
+            className="text-center text-3xl md:text-4xl lg:text-5xl font-bold"
+          />
           <p className="text-lg md:text-xl text-white/70">
             Tell us about your idea and we'll make it happen
           </p>
         </motion.div>
 
-        <Stepper
-          initialStep={1}
-          onStepChange={(step) => {
-            console.log('Current step:', step);
-          }}
-          onFinalStepCompleted={handleSubmit}
-          backButtonText="Previous"
-          nextButtonText="Next"
+        <motion.div
+          animate={shake ? { x: [-10, 10, -10, 10, 0] } : {}}
+          transition={{ duration: 0.5 }}
         >
+          <Stepper
+            initialStep={1}
+            onStepChange={handleStepChange}
+            onNext={handleNext}
+            onFinalStepCompleted={handleSubmit}
+            backButtonText="Previous"
+            nextButtonText="Next"
+          >
           {/* Step 1: Name only */}
           <Step>
             <div className="text-center">
@@ -334,7 +384,8 @@ const ContactForm = () => {
               </div>
             </div>
           </Step>
-        </Stepper>
+          </Stepper>
+        </motion.div>
       </div>
     </section>
   );

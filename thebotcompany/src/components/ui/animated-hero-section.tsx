@@ -5,8 +5,8 @@ import { useEffect, useRef } from "react"
 const COLOR = "#FFFFFF"
 const HIT_COLOR = "#333333"
 const BACKGROUND_COLOR = "#000000"
-const BALL_COLOR = "#00baff"
-const PADDLE_COLOR = "#00baff"
+const BALL_COLOR = "#FFFFFF"
+const PADDLE_COLOR = "#FFFFFF"
 const LETTER_SPACING = 1
 const WORD_SPACING = 3
 
@@ -202,7 +202,7 @@ export function PromptingIsAllYouNeed() {
       const scale = scaleRef.current
       const LARGE_PIXEL_SIZE = 8 * scale
       const SMALL_PIXEL_SIZE = 4 * scale
-      const BALL_SPEED = 6 * scale
+      const BALL_SPEED = 8 * scale
 
       pixelsRef.current = []
       const words = ["THE BOT COMPANY", "BREAKING IMPOSSIBILITIES"]
@@ -419,17 +419,29 @@ export function PromptingIsAllYouNeed() {
       })
     }
 
+    let animationId: number;
+    let isRunning = true;
+
     const gameLoop = () => {
+      if (!isRunning) return;
       updateGame()
       drawGame()
-      requestAnimationFrame(gameLoop)
+      animationId = requestAnimationFrame(gameLoop)
     }
 
     resizeCanvas()
     window.addEventListener("resize", resizeCanvas)
-    gameLoop()
+    
+    // Start the game loop with a small delay to improve initial load
+    setTimeout(() => {
+      gameLoop()
+    }, 100)
 
     return () => {
+      isRunning = false;
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
       window.removeEventListener("resize", resizeCanvas)
     }
   }, [])

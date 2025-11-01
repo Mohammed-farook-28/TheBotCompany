@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { motion } from 'motion/react';
 
 interface DecryptedTextProps {
@@ -39,10 +39,12 @@ export default function DecryptedText({
   const containerRef = useRef(null);
   
   // Split text into lines for line-by-line reveal
-  const lines = text.split('. ');
-  const processedLines = lines.map((line: string, index: number) => 
-    index < lines.length - 1 ? line + '. ' : line
-  );
+  const processedLines = useMemo(() => {
+    const lines = text.split('. ');
+    return lines.map((line: string, index: number) => 
+      index < lines.length - 1 ? line + '. ' : line
+    );
+  }, [text]);
 
   useEffect(() => {
     let interval: number | null = null;
@@ -158,7 +160,7 @@ export default function DecryptedText({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isHovering, text, speed, maxIterations, sequential, revealDirection, characters, useOriginalCharsOnly, currentLine, processedLines]);
+  }, [isHovering, text, speed, maxIterations, sequential, revealDirection, characters, useOriginalCharsOnly, currentLine]);
 
   useEffect(() => {
     if (animateOn !== 'view' && animateOn !== 'both') return;

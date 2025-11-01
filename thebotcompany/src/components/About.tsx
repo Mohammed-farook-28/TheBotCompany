@@ -24,9 +24,9 @@ const About = () => {
             <div>
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                 <DecryptedText
-                  text="We build bots that think."
-                  speed={100}
-                  maxIterations={25}
+                  text="We build bots that think,"
+                  speed={150}
+                  maxIterations={15}
                   animateOn="view"
                   revealDirection="start"
                   sequential={true}
@@ -36,9 +36,9 @@ const About = () => {
                 />
             
                 <DecryptedText
-                  text="And systems that scale."
-                  speed={100}
-                  maxIterations={25}
+                  text="and systems that scale."
+                  speed={150}
+                  maxIterations={15}
                   animateOn="view"
                   revealDirection="start"
                   sequential={true}
