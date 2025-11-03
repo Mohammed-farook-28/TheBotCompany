@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Linkedin, Github, Instagram } from 'lucide-react';
+import { Linkedin, Instagram } from 'lucide-react';
 
 // Placeholder for FooterGlow effect from 21st.dev
 const FooterGlow = ({ children }: { children: React.ReactNode }) => {

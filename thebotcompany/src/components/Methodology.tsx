@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
-import GalaxyPlanets3D from './ui/galaxy-planets-3d';
+import { Suspense, lazy } from 'react';
 import { methodologyTimelineData } from './ui/methodology-timeline-data';
+
+// Lazy load heavy 3D component
+const GalaxyPlanets3D = lazy(() => import('./ui/galaxy-planets-3d'));
 
 // Placeholder for RevealOnScroll from 21st.dev
 const RevealOnScroll = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
@@ -99,7 +102,9 @@ const Methodology = () => {
               className="relative"
             >
               <div className="w-full">
-                <GalaxyPlanets3D planetsData={methodologyTimelineData} />
+                <Suspense fallback={<div className="h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] bg-black/20 rounded-lg" />}>
+                  <GalaxyPlanets3D planetsData={methodologyTimelineData} />
+                </Suspense>
               </div>
             </motion.div>
           </div>

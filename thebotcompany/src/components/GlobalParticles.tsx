@@ -9,8 +9,10 @@ function ParticlesScene() {
   const cursorTargetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Create particles positions - spread across viewport
+  // Reduce particle count on mobile for better performance
   const positions = useMemo(() => {
-    const count = 3000;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const count = isMobile ? 1500 : 3000; // Reduced on mobile
     const pos = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {

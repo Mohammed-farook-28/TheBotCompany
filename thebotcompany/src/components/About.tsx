@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
+import { Suspense, lazy } from 'react';
 import DecryptedText from './DecryptedText';
-import TorusKnotParticles from './TorusKnotParticles';
+
+// Lazy load heavy 3D component
+const TorusKnotParticles = lazy(() => import('./TorusKnotParticles'));
 
 // Placeholder for MotionReveal from 21st.dev
 const MotionReveal = ({ children }: { children: React.ReactNode }) => {
@@ -50,7 +53,9 @@ const About = () => {
               </h2>
             </div>
             <div className="relative order-1 md:order-2" style={{ background: 'transparent', zIndex: 1 }}>
-              <TorusKnotParticles />
+              <Suspense fallback={<div className="h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]" />}>
+                <TorusKnotParticles />
+              </Suspense>
             </div>
           </div>
         </MotionReveal>

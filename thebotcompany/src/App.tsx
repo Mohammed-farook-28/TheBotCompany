@@ -1,7 +1,9 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import PillNav from './components/PillNav';
 import Logo from './components/Logo';
-import GlobalParticles from './components/GlobalParticles';
+
+// Lazy load GlobalParticles - only load when needed
+const GlobalParticles = lazy(() => import('./components/GlobalParticles'));
 
 // Lazy load heavy components
 const PromptingIsAllYouNeed = lazy(() => import('@/components/ui/animated-hero-section').then(module => ({ default: module.PromptingIsAllYouNeed })));
@@ -10,7 +12,6 @@ const About = lazy(() => import('./components/About'));
 const AIFocus = lazy(() => import('./components/AIFocus'));
 const Methodology = lazy(() => import('./components/Methodology'));
 const Services = lazy(() => import('./components/Services'));
-const Values = lazy(() => import('./components/Values'));
 const ContactForm = lazy(() => import('./components/ContactForm'));
 const CTA = lazy(() => import('./components/CTA'));
 const Footer = lazy(() => import('./components/Footer'));
@@ -30,13 +31,20 @@ function App() {
     { label: 'Contact', href: '#contact' }
   ];
 
+  // Lazy load GlobalParticles after initial render for better performance
+  const [shouldLoadParticles, setShouldLoadParticles] = useState(false);
+
   // Scroll to top on every page load/refresh
   useEffect(() => {
     // Always start from the top, regardless of URL hash
     window.scrollTo(0, 0);
     
+    // Load particles after a short delay to prioritize above-the-fold content
+    const particlesTimer = setTimeout(() => {
+      setShouldLoadParticles(true);
+    }, 100);
+
     // Also ensure scroll position is reset after a brief delay
-    // This handles cases where components might affect scroll position
     const timer = setTimeout(() => {
       window.scrollTo(0, 0);
     }, 100);
@@ -50,14 +58,19 @@ function App() {
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(particlesTimer);
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
-      {/* Global Particles - fixed background across entire app */}
-      <GlobalParticles />
+      {/* Global Particles - lazy loaded after initial render */}
+      {shouldLoadParticles && (
+        <Suspense fallback={null}>
+          <GlobalParticles />
+        </Suspense>
+      )}
       
       {/* Navigation - Fixed outside hero section to remain visible */}
       <PillNav
