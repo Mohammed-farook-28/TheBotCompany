@@ -6,7 +6,7 @@ export function Features() {
         <section className="bg-transparent">
             <div className="mx-auto max-w-3xl lg:max-w-5xl">
                 <div className="relative">
-                    <div className="relative z-10 grid grid-cols-6 gap-3">
+                    <div className="relative z-20 grid grid-cols-6 gap-3">
                         <Card className="relative col-span-full flex overflow-hidden lg:col-span-2">
                             <CardContent className="relative m-auto size-fit pt-6">
                                 <div className="relative flex h-24 w-56 items-center">

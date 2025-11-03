@@ -1,5 +1,6 @@
 import React, { useState, Children, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { GlowingEffect } from './ui/glowing-effect';
 
 interface StepperProps {
   children: React.ReactNode;
@@ -78,10 +79,11 @@ export default function Stepper({
       className="flex min-h-full flex-1 flex-col items-center justify-center p-4"
       {...rest}
     >
-      <div
-        className={`mx-auto w-full max-w-2xl rounded-2xl shadow-2xl bg-black border border-white/10 ${stepCircleContainerClassName}`}
-        style={{ border: '1px solid #333' }}
-      >
+      <GlowingEffect className="w-full max-w-2xl mx-auto">
+        <div
+          className={`w-full rounded-2xl shadow-2xl bg-black/95 backdrop-blur-sm border border-white/10 relative z-10 ${stepCircleContainerClassName}`}
+          style={{ border: '1px solid #333' }}
+        >
         <div className={`${stepContainerClassName} flex w-full items-center p-4 md:p-6`}>
           {stepsArray.map((_, index) => {
             const stepNumber = index + 1;
@@ -103,6 +105,10 @@ export default function Stepper({
                     disableStepIndicators={disableStepIndicators}
                     currentStep={currentStep}
                     onClickStep={clicked => {
+                      // Prevent skipping ahead - only allow going to previous steps or current step
+                      if (clicked > currentStep) {
+                        return; // Don't allow skipping forward
+                      }
                       setDirection(clicked > currentStep ? 1 : -1);
                       updateStep(clicked);
                     }}
@@ -139,6 +145,7 @@ export default function Stepper({
               )}
               <button
                 onClick={isLastStep ? handleComplete : handleNext}
+                data-stepper-next
                 className="duration-350 flex items-center justify-center rounded-full bg-[#00baff] py-2 px-4 md:px-6 font-bold tracking-tight text-black transition hover:bg-[#00baff]/80 hover:shadow-[0_0_20px_rgba(0,186,255,0.5)] text-sm md:text-base"
                 {...nextButtonProps}
               >
@@ -147,7 +154,8 @@ export default function Stepper({
             </div>
           </div>
         )}
-      </div>
+        </div>
+      </GlowingEffect>
     </div>
   );
 }
@@ -234,13 +242,23 @@ function StepIndicator({ step, currentStep, onClickStep, disableStepIndicators }
   const status = currentStep === step ? 'active' : currentStep < step ? 'inactive' : 'complete';
 
   const handleClick = () => {
-    if (step !== currentStep && !disableStepIndicators) onClickStep(step);
+    // Prevent clicking if:
+    // 1. Step indicators are disabled, OR
+    // 2. Trying to skip ahead (clicking a future step)
+    if (disableStepIndicators || step > currentStep) {
+      return;
+    }
+    if (step !== currentStep) {
+      onClickStep(step);
+    }
   };
+
+  const isClickable = !disableStepIndicators && step <= currentStep;
 
   return (
     <motion.div
       onClick={handleClick}
-      className="relative cursor-pointer outline-none focus:outline-none"
+      className={`relative ${isClickable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'} outline-none focus:outline-none`}
       animate={status}
       initial={false}
     >

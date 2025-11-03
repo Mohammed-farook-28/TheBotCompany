@@ -39,7 +39,10 @@ const Footer = () => {
               transition={{ delay: 0.1 }}
               className="text-white/60 text-center"
             >
-              Built by TheBotCompany — Chennai, India
+              Built by TheBotCompany <br></br>
+              X
+              <br></br>
+              Powered by Medistation - Canada 
             </motion.div>
 
             <motion.div

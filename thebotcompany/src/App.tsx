@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect } from 'react';
 import PillNav from './components/PillNav';
 import Logo from './components/Logo';
+import GlobalParticles from './components/GlobalParticles';
 
 // Lazy load heavy components
 const PromptingIsAllYouNeed = lazy(() => import('@/components/ui/animated-hero-section').then(module => ({ default: module.PromptingIsAllYouNeed })));
@@ -54,62 +55,64 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden relative">
+      {/* Global Particles - fixed background across entire app */}
+      <GlobalParticles />
+      
+      {/* Navigation - Fixed outside hero section to remain visible */}
+      <PillNav
+        logo={<Logo />}
+        items={navigationItems}
+        activeHref="#home"
+        className="custom-nav"
+        ease="power2.easeOut"
+        baseColor="#000000"
+        pillColor="#FFFFFF"
+        hoveredPillTextColor="#FFFFFF"
+        pillTextColor="#000000"
+        onMobileMenuClick={() => {}}
+      />
+      
       {/* Animated Hero Section with Pong Game */}
-      <div id="home" className="relative h-screen">
+      <div id="home" className="relative h-screen z-10">
         <Suspense fallback={<LoadingSpinner />}>
           <PromptingIsAllYouNeed />
         </Suspense>
-        
-        {/* Navigation positioned in center of hero section */}
-        <PillNav
-          logo={<Logo />}
-          items={navigationItems}
-          activeHref="#home"
-          className="custom-nav"
-          ease="power2.easeOut"
-          baseColor="#000000"
-          pillColor="#FFFFFF"
-          hoveredPillTextColor="#FFFFFF"
-          pillTextColor="#000000"
-          onMobileMenuClick={() => {}}
-        />
       </div>
 
       {/* Main sections */}
-      <Suspense fallback={<div className="h-32 bg-black" />}>
-        <TrustedBy />
-      </Suspense>
-      <div id="about">
-        <Suspense fallback={<div className="h-96 bg-black" />}>
-          <About />
+      <div className="relative z-10">
+        <Suspense fallback={<div className="h-32 bg-black" />}>
+          <TrustedBy />
+        </Suspense>
+        <div id="about">
+          <Suspense fallback={<div className="h-96 bg-black" />}>
+            <About />
+          </Suspense>
+        </div>
+        <Suspense fallback={<div className="h-64 bg-black" />}>
+          <AIFocus />
+        </Suspense>
+        <Suspense fallback={<div className="h-64 bg-black" />}>
+          <Methodology />
+        </Suspense>
+        <div id="services">
+          <Suspense fallback={<div className="h-96 bg-black" />}>
+            <Services />
+          </Suspense>
+        </div>
+        <div id="contact">
+          <Suspense fallback={<div className="h-96 bg-black" />}>
+            <ContactForm />
+          </Suspense>
+        </div>
+        <Suspense fallback={<div className="h-32 bg-black" />}>
+          <CTA />
+        </Suspense>
+        <Suspense fallback={<div className="h-32 bg-black" />}>
+          <Footer />
         </Suspense>
       </div>
-      <Suspense fallback={<div className="h-64 bg-black" />}>
-        <AIFocus />
-      </Suspense>
-      <Suspense fallback={<div className="h-64 bg-black" />}>
-        <Methodology />
-      </Suspense>
-      <div id="services">
-        <Suspense fallback={<div className="h-96 bg-black" />}>
-          <Services />
-        </Suspense>
-      </div>
-      <Suspense fallback={<div className="h-64 bg-black" />}>
-        <Values />
-      </Suspense>
-      <div id="contact">
-        <Suspense fallback={<div className="h-96 bg-black" />}>
-          <ContactForm />
-        </Suspense>
-      </div>
-      <Suspense fallback={<div className="h-32 bg-black" />}>
-        <CTA />
-      </Suspense>
-      <Suspense fallback={<div className="h-32 bg-black" />}>
-        <Footer />
-      </Suspense>
     </div>
   );
 }

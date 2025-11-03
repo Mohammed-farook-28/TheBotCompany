@@ -29,7 +29,7 @@ const AnimatedButton = ({ children, href }: { children: React.ReactNode; href: s
 
 const CTA = () => {
   return (
-    <section className="py-40 px-6 bg-gradient-to-b from-black to-[#001a2e]">
+    <section className="py-8 md:py-12 px-6 bg-gradient-to-b from-[#001a2e] via-[#001a2e]/70 to-black relative z-10">
       <div className="max-w-4xl mx-auto text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

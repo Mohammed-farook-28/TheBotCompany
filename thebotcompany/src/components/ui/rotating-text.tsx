@@ -31,7 +31,7 @@ export default function RotatingText({
 
   return (
     <div className={cn("flex items-center", className)}>
-      <span className="text-white text-6xl font-bold">
+      <span className="text-white text-6xl font-bold font-heading pixel-font">
         {baseText}
       </span>
       <span className="ml-4">
@@ -42,7 +42,7 @@ export default function RotatingText({
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             exit={{ opacity: 0, y: -20, rotateX: 90 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="text-6xl font-bold inline-block"
+            className="text-6xl font-bold inline-block font-heading pixel-font"
             style={{ color: highlightColor }}
           >
             {words[currentIndex]}

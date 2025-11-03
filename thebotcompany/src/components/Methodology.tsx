@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import RadialOrbitalTimeline from './ui/radial-orbital-timeline';
+import GalaxyPlanets3D from './ui/galaxy-planets-3d';
 import { methodologyTimelineData } from './ui/methodology-timeline-data';
 
 // Placeholder for RevealOnScroll from 21st.dev
@@ -26,7 +26,7 @@ const Methodology = () => {
   ];
 
   return (
-    <section className="py-32 px-6 bg-black">
+    <section className="py-8 md:py-12 px-6 bg-gradient-to-b from-[#001a2e]/80 via-[#001a2e]/30 to-black relative z-10">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -90,7 +90,7 @@ const Methodology = () => {
               
             </div>
 
-            {/* Right side - Orbital Timeline */}
+            {/* Right side - 3D Galaxy with Planets */}
             <motion.div
               initial={{ opacity: 0, x: 40 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -98,8 +98,8 @@ const Methodology = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="relative"
             >
-              <div className="w-full h-[600px]">
-                <RadialOrbitalTimeline timelineData={methodologyTimelineData} />
+              <div className="w-full">
+                <GalaxyPlanets3D planetsData={methodologyTimelineData} />
               </div>
             </motion.div>
           </div>

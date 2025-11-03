@@ -9,8 +9,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Pixelify Sans', 'Courier New', 'Monaco', 'Menlo', 'Ubuntu Mono', 'monospace'],
+        sans: ['Josefin Sans', 'sans-serif'],
         pixel: ['Pixelify Sans', 'Courier New', 'Monaco', 'Menlo', 'Ubuntu Mono', 'monospace'],
+        heading: ['Pixelify Sans', 'Courier New', 'Monaco', 'Menlo', 'Ubuntu Mono', 'monospace'],
       },
     },
   },

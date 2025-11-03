@@ -58,7 +58,7 @@ const Services = () => {
   };
 
   return (
-    <section className="py-24 px-4 md:px-6 bg-gradient-to-b from-[#001a2e] to-black relative overflow-hidden">
+    <section className="py-8 md:py-12 px-4 md:px-6 bg-gradient-to-b from-black via-black to-[#001a2e]/30 relative overflow-hidden z-10">
       <div className="max-w-7xl mx-auto">
         {/* Center Text */}
         <motion.div
@@ -66,7 +66,7 @@ const Services = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="flex items-center justify-center min-h-[500px] relative"
+          className="flex items-center justify-center min-h-[250px] md:min-h-[300px] relative"
         >
           <motion.h2
             initial={{ opacity: 0, scale: 0.8 }}
