@@ -3,9 +3,11 @@ import React from 'react';
 const Logo = () => {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="text-white font-bold text-lg">
-        <span className="text-[#00baff]">TB</span>
-      </div>
+      <img 
+        src="/logo.svg" 
+        alt="TheBotCompany Logo" 
+        className="w-10 h-10 md:w-12 md:h-12 object-contain"
+      />
     </div>
   );
 };

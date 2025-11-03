@@ -8,7 +8,7 @@ const AnimatedButton = ({ children, href }: { children: React.ReactNode; href: s
       href={href}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#00baff] text-black font-bold text-lg rounded-full overflow-hidden cursor-pointer"
+      className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-[#00baff] text-black font-bold text-base sm:text-lg rounded-full overflow-hidden cursor-pointer"
     >
       <motion.span
         className="absolute inset-0 bg-white"
@@ -35,17 +35,17 @@ const CTA = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-5xl md:text-6xl font-bold text-white mb-6"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 px-4"
         >
           Ready to build your{' '}
-          <span className="text-[#00baff]">next bot?</span>
+          <span className="text-[#00baff] pixel-font font-heading font-bold">next bot?</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="text-xl text-white/70 mb-12"
+          className="text-base sm:text-lg md:text-xl text-white/70 mb-8 sm:mb-12 px-4"
         >
           Let's automate the boring and build the bold.
         </motion.p>

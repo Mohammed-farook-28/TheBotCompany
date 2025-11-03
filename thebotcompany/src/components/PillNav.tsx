@@ -39,6 +39,18 @@ const PillNav: React.FC<PillNavProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Track window size for responsive positioning
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const circleRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const tlRefs = useRef<(gsap.core.Timeline | null)[]>([]);
   const activeTweenRefs = useRef<(gsap.core.Tween | null)[]>([]);
@@ -223,14 +235,15 @@ const PillNav: React.FC<PillNavProps> = ({
         gsap.set(menu, { visibility: 'visible', display: 'block' });
         gsap.fromTo(
           menu,
-          { opacity: 0, y: 10, scaleY: 0.95 },
+          { opacity: 0, y: 10, scaleY: 0.95, x: window.innerWidth < 768 ? 10 : 0 },
           {
             opacity: 1,
             y: 0,
             scaleY: 1,
+            x: 0,
             duration: 0.3,
             ease: 'power2.easeOut',
-            transformOrigin: 'top center'
+            transformOrigin: window.innerWidth < 768 ? 'top right' : 'top center'
           }
         );
       } else {
@@ -238,9 +251,10 @@ const PillNav: React.FC<PillNavProps> = ({
           opacity: 0,
           y: 10,
           scaleY: 0.95,
+          x: window.innerWidth < 768 ? 10 : 0,
           duration: 0.2,
           ease: 'power2.easeIn',
-          transformOrigin: 'top center',
+          transformOrigin: window.innerWidth < 768 ? 'top right' : 'top center',
           onComplete: () => {
             gsap.set(menu, { visibility: 'hidden', display: 'none' });
           }
@@ -277,26 +291,31 @@ const PillNav: React.FC<PillNavProps> = ({
       ref={navRef}
       className={`z-[1000] fixed ${
         isScrolled 
-          ? 'bg-black/90 backdrop-blur-md border border-white/10 rounded-full px-4' 
+          ? 'bg-black/90 backdrop-blur-md border border-white/10 rounded-full px-2 md:px-4' 
           : 'bg-transparent'
-      } ${className}`}
+      } ${isMobile ? 'shadow-lg' : ''} ${className}`}
       style={{
         willChange: 'transform, background-color, border-color, top, opacity',
         backfaceVisibility: 'hidden',
-        left: '50%',
-        top: isScrolled ? '40px' : `${Math.max(75 - (scrollY * 0.02), 40)}px`, // Smooth movement from 75% to 40px
-        transform: 'translateX(-50%) translateY(-50%) translateZ(0)',
+        left: isMobile ? 'auto' : '50%',
+        right: isMobile ? '16px' : 'auto',
+        top: isMobile 
+          ? '16px'
+          : (isScrolled ? '40px' : `${Math.max(75 - (scrollY * 0.02), 40)}px`),
+        transform: isMobile 
+          ? 'translateY(0) translateZ(0)' 
+          : 'translateX(-50%) translateY(-50%) translateZ(0)',
         opacity: 1,
         transition: isScrolled ? 'all 0.3s ease-out' : 'none'
       }}
     >
-      <div className="relative w-full flex justify-center">
+      <div className="relative w-full flex justify-center md:justify-center">
         <nav
-          className="flex items-center justify-center box-border"
+          className="flex items-center justify-center md:justify-center box-border"
           aria-label="Primary"
           style={cssVars}
         >
-          <div className="flex items-center gap-3 justify-center">
+          <div className="flex items-center gap-2 md:gap-3 justify-center">
             {isRouterLink(items?.[0]?.href) ? (
               <a
                 href={items[0].href}
@@ -453,11 +472,13 @@ const PillNav: React.FC<PillNavProps> = ({
 
          <div
            ref={mobileMenuRef}
-           className="md:hidden absolute top-[4em] left-0 right-0 rounded-[27px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[998] origin-top"
+           className="md:hidden absolute top-[3.5em] right-0 w-[280px] sm:w-[320px] rounded-[27px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[998] origin-top-right"
           style={{
             ...cssVars,
             background: 'var(--base, #000)',
-            border: '1px solid rgba(255,255,255,0.1)'
+            border: '1px solid rgba(255,255,255,0.1)',
+            maxWidth: 'calc(100vw - 32px)',
+            marginRight: '0px'
           }}
         >
           <ul className="list-none m-0 p-[3px] flex flex-col gap-[3px]">

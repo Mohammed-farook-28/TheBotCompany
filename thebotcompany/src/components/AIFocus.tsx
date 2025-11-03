@@ -9,10 +9,10 @@ const AIFocus = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-4xl font-bold text-white text-center mb-8"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-6 sm:mb-8 px-4"
         >
           AI is not an add-on.{' '}
-          <span className="text-[#00baff]">It's our foundation.</span>
+          <span className="text-[#00baff] pixel-font font-heading font-bold">It's our foundation.</span>
         </motion.h2>
 
         <div className="relative z-10">

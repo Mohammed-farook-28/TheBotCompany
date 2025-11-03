@@ -13,9 +13,8 @@ const FooterGlow = ({ children }: { children: React.ReactNode }) => {
 
 const Footer = () => {
   const socials = [
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Github, href: '#', label: 'GitHub' },
-    { icon: Instagram, href: '#', label: 'Instagram' },
+    { icon: Linkedin, href: 'https://www.linkedin.com/in/the-bot-company-89667a395/', label: 'LinkedIn' },
+    { icon: Instagram, href: 'https://www.instagram.com/thebotcompany.in/?utm_source=ig_web_button_share_sheet', label: 'Instagram' },
   ];
 
   return (

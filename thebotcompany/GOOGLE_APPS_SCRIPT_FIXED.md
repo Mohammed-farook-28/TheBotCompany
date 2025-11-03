@@ -1,35 +1,16 @@
-# Google Apps Script Setup for Contact Form
+# Fixed Google Apps Script for Contact Form
 
-## Instructions to Set Up Google Sheets Integration
+## IMPORTANT: Copy this ENTIRE script to your Google Apps Script
 
-1. **Open Google Sheets**
-   - Go to your sheet: https://docs.google.com/spreadsheets/d/1jpoc-W1fsIPSpH6uenmi4hoQoXocRZoTAmg6TpJOgwI/edit
-
-2. **Create "Leads" Sheet** (if not already created)
-   - Create a sheet named "Leads" (exact name, case-sensitive)
-   - Row 1 should have these headers:
-     - Timestamp
-     - Name
-     - Email
-     - Phone
-     - Budget
-     - Timeline
-     - Description
-   - Note: The script will automatically create this sheet with headers if it doesn't exist
-
-3. **Open Google Apps Script**
-   - Click on "Extensions" → "Apps Script"
-   - Or go directly to: https://script.google.com
-
-4. **Paste This Script** (FIXED - Removed setHeaders which doesn't exist):
 ```javascript
 function doPost(e) {
   try {
     Logger.log('=== doPost called ===');
+    Logger.log('e object exists: ' + (e ? 'yes' : 'no'));
     
     // Check if e is undefined (happens when testing manually)
     if (!e) {
-      Logger.log('ERROR: e parameter is undefined - this function must be called via HTTP POST');
+      Logger.log('ERROR: e parameter is undefined');
       return ContentService.createTextOutput(JSON.stringify({
         success: false,
         error: 'No request data received. This function must be called via HTTP POST.'
@@ -71,7 +52,7 @@ function doPost(e) {
     // Handle both JSON and URL-encoded data
     let data;
     
-    // Priority 1: Check e.parameter (URL-encoded form data - this is what we're sending)
+    // Priority 1: Check e.parameter (URL-encoded form data)
     if (e.parameter) {
       Logger.log('Processing e.parameter (URL-encoded)');
       data = {
@@ -95,12 +76,12 @@ function doPost(e) {
         Logger.log('Parsed as JSON successfully');
       } catch (jsonError) {
         Logger.log('JSON parse failed, trying URL-encoded string parsing');
-        // If JSON parsing fails, parse as URL-encoded string manually
+        // If JSON parsing fails, parse as URL-encoded string
         const params = {};
         const pairs = e.postData.contents.split('&');
         for (let i = 0; i < pairs.length; i++) {
           const pair = pairs[i].split('=');
-          const key = decodeURIComponent(pair[0] || '');
+          const key = decodeURIComponent(pair[0]);
           const value = decodeURIComponent(pair[1] || '');
           params[key] = value;
         }
@@ -135,7 +116,7 @@ function doPost(e) {
     
     Logger.log('Row appended successfully');
     
-    // Return success (NOTE: setHeaders doesn't exist in ContentService - removed it)
+    // Return success (NOTE: setHeaders doesn't exist in ContentService, removed it)
     return ContentService.createTextOutput(JSON.stringify({
       success: true,
       message: 'Data saved successfully to Leads sheet'
@@ -148,7 +129,7 @@ function doPost(e) {
     Logger.log('Error stack: ' + (error.stack || 'No stack trace'));
     Logger.log('Full error: ' + error.toString());
     
-    // Return error (NOTE: setHeaders doesn't exist - removed it)
+    // Return error (NOTE: setHeaders doesn't exist, removed it)
     return ContentService.createTextOutput(JSON.stringify({
       success: false,
       error: error.toString(),
@@ -190,29 +171,24 @@ function testSpreadsheet() {
 }
 ```
 
-5. **Deploy as Web App**
-   - Click "Deploy" → "New deployment"
-   - Click the gear icon ⚙️ next to "Select type" → Choose "Web app"
-   - Set:
-     - Description: "Contact Form Handler"
-     - Execute as: "Me"
-     - Who has access: "Anyone"
-   - Click "Deploy"
-   - Copy the Web App URL
+## Key Changes:
 
-6. **Update ContactForm.tsx**
-   - Replace `YOUR_GOOGLE_APPS_SCRIPT_URL_HERE` with your Web App URL
-   - The URL should look like: `https://script.google.com/macros/s/AKfyc.../exec`
+1. **Removed `setHeaders()`** - This method doesn't exist in ContentService
+2. **Added check for undefined `e`** - Handles manual testing gracefully
+3. **Priority check `e.parameter` first** - URL-encoded data typically comes through `e.parameter`
+4. **Better URL-encoded string parsing** - Handles the case when `postData.contents` is a URL-encoded string
+5. **Added test function** - Use `testSpreadsheet()` to verify permissions
 
-7. **Test the Integration**
-   - Submit the contact form
-   - Check your Google Sheet for the new row
-   - Verify redirect to Cal.com
+## Testing Steps:
 
-## Notes
-- The script will automatically append new form submissions to the "Leads" sheet
-- If the "Leads" sheet doesn't exist, it will be created automatically with headers
-- Make sure your "Leads" sheet has the correct headers in row 1 (or let the script create them)
-- The script handles errors gracefully and will still redirect users even if Google Sheets fails
-- The sheet name "Leads" is case-sensitive, so make sure it matches exactly
+1. **First, test spreadsheet access:**
+   - In Google Apps Script, select the `testSpreadsheet` function
+   - Click Run
+   - Authorize permissions if prompted
+   - Check the execution log to see if it succeeds
+
+2. **Then test doPost:**
+   - You CANNOT test `doPost` manually (it needs HTTP POST request)
+   - Deploy as Web App and test via form submission
+   - Check execution logs after form submission
 

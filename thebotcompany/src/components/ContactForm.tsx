@@ -1,24 +1,65 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Stepper, { Step } from './Stepper';
 import RotatingText from './ui/rotating-text';
 import { User, Mail, Phone, MessageSquare, Bot, Search } from 'lucide-react';
 
+const FORM_STORAGE_KEY = 'contactFormData';
+const STEP_STORAGE_KEY = 'contactFormStep';
+
 const ContactForm = () => {
+  // Load saved form data from sessionStorage on mount
+  const loadSavedData = () => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem(FORM_STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    return null;
+  };
+
+  const savedData = loadSavedData();
+  
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    countryCode: '+1',
-    phone: '',
-    budget: '',
-    timeline: '',
-    description: ''
+    name: savedData?.name || '',
+    email: savedData?.email || '',
+    countryCode: savedData?.countryCode || '+1',
+    phone: savedData?.phone || '',
+    timeline: savedData?.timeline || '',
+    description: savedData?.description || ''
+  });
+
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem(STEP_STORAGE_KEY);
+      return saved ? parseInt(saved, 10) : 1;
+    }
+    return 1;
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [shake, setShake] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Save form data to sessionStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData]);
+
+  // Save current step to sessionStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && currentStep) {
+      sessionStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
+    }
+  }, [currentStep]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -43,16 +84,14 @@ const ContactForm = () => {
       case 3:
         return true; // Phone is optional
       case 4:
-        return formData.budget !== '';
-      case 5:
         return formData.description.trim() !== '';
       default:
         return true;
     }
   };
 
-  const handleStepChange = () => {
-    // Step change handler - can be used for analytics or other side effects
+  const handleStepChange = (step: number) => {
+    setCurrentStep(step);
   };
 
   const handleNext = (step: number) => {
@@ -65,7 +104,7 @@ const ContactForm = () => {
 
   const handleSubmit = async () => {
     // Validate all required fields before submission
-    if (!formData.name.trim() || !formData.email.trim() || !validateEmail(formData.email) || !formData.budget || !formData.description.trim()) {
+    if (!formData.name.trim() || !formData.email.trim() || !validateEmail(formData.email) || !formData.description.trim()) {
       triggerShake();
       return;
     }
@@ -73,14 +112,7 @@ const ContactForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Google Apps Script Web App URL - Replace with your actual script URL
-      // Instructions: 
-      // 1. Go to https://script.google.com
-      // 2. Create a new project
-      // 3. Paste the script from the comment below
-      // 4. Deploy as web app with execute as "me" and access "anyone"
-      // 5. Copy the web app URL and replace GOOGLE_SCRIPT_URL below
-      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiXHY6PGlQqAmLtXwcLkP69OqPMwMLN-nWzLLX4BxxP_frs73CZpoqUJEISdFxgcXW/exec';
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIIhKoroub8YMPoqdQ34E14z0405192OnoySUY8cXkq9wPnWIFQSyX2Aor9B3RPyk/exec';
       
       // Prepare data for Google Sheets
       const sheetData = {
@@ -88,55 +120,72 @@ const ContactForm = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.countryCode + ' ' + formData.phone,
-        budget: formData.budget,
+        budget: 'Not specified', // Budget removed, but keep for backward compatibility with Google Sheets
         timeline: formData.timeline || 'Not specified',
         description: formData.description
       };
       
       // Send data to Google Sheets via Google Apps Script
+      // Using URL-encoded form data to avoid CORS issues
       if (GOOGLE_SCRIPT_URL) {
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(sheetData)
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to submit form data');
+        try {
+          // Create URL-encoded form data
+          const urlParams = new URLSearchParams();
+          urlParams.append('timestamp', sheetData.timestamp);
+          urlParams.append('name', sheetData.name);
+          urlParams.append('email', sheetData.email);
+          urlParams.append('phone', sheetData.phone);
+          urlParams.append('budget', sheetData.budget);
+          urlParams.append('timeline', sheetData.timeline);
+          urlParams.append('description', sheetData.description);
+          
+          // Send using fetch with URL-encoded data
+          // Note: mode: 'no-cors' prevents reading response, but avoids CORS errors
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Avoid CORS issues
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: urlParams.toString()
+          });
+          
+          console.log('Form data sent to Google Sheets');
+        } catch (fetchError) {
+          console.error('Error sending to Google Sheets:', fetchError);
+          // Continue anyway - don't block user experience
         }
       }
       
       // Log to console as fallback
       console.log('Form submitted:', sheetData);
       
+      // Clear saved form data after successful submission
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(FORM_STORAGE_KEY);
+        sessionStorage.removeItem(STEP_STORAGE_KEY);
+      }
+      
       // Set submitted state
       setIsSubmitted(true);
       
-      // Redirect to Cal.com after a short delay
+      // Open Cal.com in a new tab after a short delay
       setTimeout(() => {
-        window.location.href = 'https://cal.com/thebotcompany/meet-the-bot';
+        window.open('https://cal.com/thebotcompany/meet-the-bot', '_blank', 'noopener,noreferrer');
       }, 2000);
       
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Still show success and redirect even if Google Sheets fails
-      setIsSubmitted(true);
+      // Still show success and open Cal.com even if Google Sheets fails
+    setIsSubmitted(true);
       setTimeout(() => {
-        window.location.href = 'https://cal.com/thebotcompany/meet-the-bot';
+        window.open('https://cal.com/thebotcompany/meet-the-bot', '_blank', 'noopener,noreferrer');
       }, 2000);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const budgetRanges = [
-    { value: '500-10000', label: '$500-$10,000' },
-    { value: '1000-3000', label: '$1,000-$3,000' },
-    { value: '3000-10000', label: '$3,000-$10,000' },
-    { value: 'more', label: 'More' }
-  ];
 
   const allCountryCodes = [
     { code: '+1', country: 'United States', flag: '🇺🇸' },
@@ -487,7 +536,7 @@ const ContactForm = () => {
               We've received your project details and will get back to you within 24 hours.
             </p>
             <p className="text-lg text-white/70 mb-6">
-              {isSubmitting ? 'Submitting your information...' : 'Redirecting you to schedule a meeting...'}
+              {isSubmitting ? 'Submitting your information...' : 'Opening Cal.com in a new tab...'}
             </p>
             {!isSubmitting && (
               <a
@@ -506,22 +555,33 @@ const ContactForm = () => {
   }
 
   return (
-    <section className="py-8 md:py-12 px-4 md:px-6 bg-gradient-to-b from-[#001a2e]/30 via-[#001a2e]/50 to-[#001a2e] relative z-10">
-      <div className="max-w-4xl mx-auto relative z-10">
+    <section className="py-8 md:py-12 px-4 md:px-6 bg-gradient-to-b from-[#001a2e]/30 via-[#001a2e]/50 to-[#001a2e] relative z-10 overflow-x-visible">
+      <div className="max-w-4xl mx-auto relative z-10 overflow-x-visible">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-6"
+          className="text-center mb-6 px-4"
         >
+          {savedData && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-[#00baff]/10 border border-[#00baff]/30 rounded-lg text-sm text-[#00baff]"
+            >
+              ✓ Your progress has been saved. Continuing from where you left off...
+            </motion.div>
+          )}
+          <div className="flex justify-center items-center overflow-visible">
           <RotatingText 
             words={['idea', 'dream', 'app', 'vision']}
             interval={2000}
             baseText="Let's build your next"
             highlightColor="#00baff"
-            className="text-center text-3xl md:text-4xl lg:text-5xl font-bold"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"
           />
-          <p className="text-lg md:text-xl text-white/70">
+          </div>
+          <p className="text-base sm:text-lg md:text-xl text-white/70">
             Tell us about your idea and we'll make it happen
           </p>
         </motion.div>
@@ -532,7 +592,7 @@ const ContactForm = () => {
           className="relative z-10"
         >
           <Stepper
-            initialStep={1}
+            initialStep={currentStep}
             onStepChange={handleStepChange}
             onNext={handleNext}
             onFinalStepCompleted={handleSubmit}
@@ -659,32 +719,7 @@ const ContactForm = () => {
             </div>
           </Step>
 
-          {/* Step 4: Budget Range */}
-          <Step>
-            <div className="text-center">
-              <MessageSquare className="w-10 h-10 md:w-12 md:h-12 text-[#00baff] mx-auto mb-4 md:mb-6" />
-              <h3 className="text-xl md:text-2xl font-bold text-white mb-3 md:mb-4">What's your budget range?</h3>
-              <p className="text-white/70 mb-6 md:mb-8 text-sm md:text-base">Help us understand your project scope</p>
-            </div>
-            
-            <div>
-              <label className="block text-white font-bold mb-2">Budget Range *</label>
-              <select
-                value={formData.budget}
-                onChange={(e) => handleInputChange('budget', e.target.value)}
-                className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white focus:border-[#00baff] focus:outline-none transition-colors"
-              >
-                <option value="">Select budget range</option>
-                {budgetRanges.map((range) => (
-                  <option key={range.value} value={range.value}>
-                    {range.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </Step>
-
-          {/* Step 5: Project Description */}
+          {/* Step 4: Project Description */}
           <Step>
             <div className="text-center">
               <MessageSquare className="w-10 h-10 md:w-12 md:h-12 text-[#00baff] mx-auto mb-4 md:mb-6" />

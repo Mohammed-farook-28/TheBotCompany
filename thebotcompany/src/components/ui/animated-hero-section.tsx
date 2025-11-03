@@ -187,15 +187,18 @@ export function PromptingIsAllYouNeed() {
     let isInitialized = false
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-      scaleRef.current = Math.min(canvas.width / 1000, canvas.height / 1000)
+      const newWidth = window.innerWidth
+      const newHeight = window.innerHeight
+      canvas.width = newWidth
+      canvas.height = newHeight
       
-      // Only initialize game on first load, not on every resize
-      if (!isInitialized) {
-        initializeGame()
-        isInitialized = true
-      }
+      // Better scale calculation for mobile - use smaller reference for mobile
+      const isMobile = newWidth < 640
+      const referenceSize = isMobile ? 800 : 1000
+      scaleRef.current = Math.min(newWidth / referenceSize, newHeight / referenceSize)
+      
+      // Re-initialize game on resize to properly scale everything
+      initializeGame()
     }
 
     const initializeGame = () => {
@@ -224,7 +227,9 @@ export function PromptingIsAllYouNeed() {
         return width + calculateWordWidth(word, SMALL_PIXEL_SIZE) + (index > 0 ? WORD_SPACING * SMALL_PIXEL_SIZE : 0)
       }, 0)
       const totalWidth = Math.max(totalWidthLarge, totalWidthSmall)
-      const scaleFactor = (canvas.width * 0.8) / totalWidth
+      // Use smaller width factor on mobile to prevent overflow
+      const widthFactor = canvas.width < 640 ? 0.9 : 0.8
+      const scaleFactor = (canvas.width * widthFactor) / totalWidth
 
       const adjustedLargePixelSize = LARGE_PIXEL_SIZE * scaleFactor
       const adjustedSmallPixelSize = SMALL_PIXEL_SIZE * scaleFactor

@@ -32,17 +32,17 @@ const Methodology = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-4"
+          className="text-center mb-4 sm:mb-6"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 px-4">
             How we build bots that{' '}
-            <span className="text-[#00baff]">actually work.</span>
+            <span className="text-[#00baff] pixel-font font-heading font-bold">actually work.</span>
           </h2>
           <div className="w-32 h-px bg-gradient-to-r from-transparent via-[#00baff] to-transparent mx-auto"></div>
         </motion.div>
 
         {/* Traditional Linear Steps - Hidden on larger screens */}
-        <div className="grid md:grid-cols-5 gap-8 mt-20 md:hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 mt-12 sm:mt-16 md:hidden">
           {steps.map((step, index) => (
             <RevealOnScroll key={index} delay={index * 0.1}>
               <div className="relative">
@@ -64,8 +64,8 @@ const Methodology = () => {
         </div>
 
         {/* Interactive Orbital Timeline - Visible on larger screens */}
-        <div className="hidden md:block mt-20">
-          <div className="grid grid-cols-2 gap-16 items-center">
+        <div className="hidden md:block mt-12 lg:mt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left side - Text content */}
             <div className="space-y-6">
               <motion.div
@@ -75,16 +75,16 @@ const Methodology = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="space-y-6"
               >
-                <h3 className="text-3xl font-bold text-white leading-tight">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight">
                   Every project starts with a{' '}
-                  <span className="text-[#00baff]">question.</span>
+                  <span className="text-[#00baff] pixel-font font-heading font-bold">question.</span>
                 </h3>
-                <p className="text-lg text-white/80 leading-relaxed">
+                <p className="text-base sm:text-lg text-white/80 leading-relaxed">
                   We listen, design with intent, automate what matters, build fast, and keep evolving.
                 </p>
                 <p className="text-lg text-white/80 leading-relaxed">
                   It's not a pipeline — it's a{' '}
-                  <span className="text-[#00baff] font-semibold">loop</span> that keeps learning with you.
+                  <span className="text-[#00baff] font-bold pixel-font font-heading">loop</span> that keeps learning with you.
                 </p>
               </motion.div>
               

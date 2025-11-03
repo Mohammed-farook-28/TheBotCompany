@@ -593,10 +593,14 @@ export default function GalaxyPlanets3D({ planetsData }: GalaxyPlanets3DProps) {
           pointer-events: auto !important;
         }
       `}</style>
-      <div ref={containerRef} className="relative w-full h-[600px] md:h-[700px]">
+      <div ref={containerRef} className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px]">
       {/* 3D Canvas */}
       <Canvas
-        camera={{ position: [0, 2, 12], fov: 40 }}
+        camera={{ 
+          position: typeof window !== 'undefined' && window.innerWidth < 640 ? [0, 1.5, 14] : [0, 2, 12], 
+          fov: typeof window !== 'undefined' && window.innerWidth < 640 ? 45 : 40 
+        }}
+        dpr={[1, typeof window !== 'undefined' && window.innerWidth < 768 ? 1.5 : 2]}
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
       >
@@ -619,11 +623,11 @@ export default function GalaxyPlanets3D({ planetsData }: GalaxyPlanets3DProps) {
       </Canvas>
 
       {/* Controls Overlay */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
+      <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2 z-30 px-4">
         <button
           onClick={startOrbitAnimation}
           disabled={isOrbiting}
-          className="px-6 py-3 bg-[#00baff] text-black font-bold rounded-full shadow-lg shadow-[#00baff]/50 hover:shadow-[#00baff]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-4 sm:px-6 py-2 sm:py-3 bg-[#00baff] text-black font-bold text-sm sm:text-base rounded-full shadow-lg shadow-[#00baff]/50 hover:shadow-[#00baff]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap"
         >
           {isOrbiting
             ? "Orbiting..."
@@ -632,11 +636,11 @@ export default function GalaxyPlanets3D({ planetsData }: GalaxyPlanets3DProps) {
       </div>
 
       {/* Phase Indicator */}
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-30 text-center">
-        <span className="text-white/60 text-sm block">
+      <div className="absolute top-4 sm:top-6 md:top-8 left-1/2 transform -translate-x-1/2 z-30 text-center px-4">
+        <span className="text-white/60 text-xs sm:text-sm block">
           Phase {currentPhase + 1} / {planetsData.length}
         </span>
-        <span className="text-[#00baff] font-semibold text-base block mt-1">
+        <span className="text-[#00baff] font-semibold text-sm sm:text-base block mt-1">
           {planetsData[currentPhase].title}
         </span>
       </div>

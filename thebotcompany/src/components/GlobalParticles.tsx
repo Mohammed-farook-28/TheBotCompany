@@ -114,14 +114,17 @@ export default function GlobalParticles() {
       }}
     >
       <Canvas
-        camera={{ position: [0, 0, 35], fov: 70 }}
+        camera={{ 
+          position: [0, 0, typeof window !== 'undefined' && window.innerWidth < 768 ? 30 : 35], 
+          fov: typeof window !== 'undefined' && window.innerWidth < 768 ? 75 : 70 
+        }}
         gl={{ 
-          antialias: true, 
+          antialias: typeof window !== 'undefined' && window.innerWidth >= 768, 
           alpha: true,
-          powerPreference: 'high-performance',
+          powerPreference: typeof window !== 'undefined' && window.innerWidth < 768 ? 'low-power' : 'high-performance',
           preserveDrawingBuffer: false
         }}
-        dpr={[1, 2]} // Device pixel ratio for better performance
+        dpr={[1, typeof window !== 'undefined' && window.innerWidth < 768 ? 1.5 : 2]} // Lower DPR on mobile for performance
         style={{ 
           background: 'transparent', 
           width: '100%', 

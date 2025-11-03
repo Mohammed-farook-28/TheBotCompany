@@ -198,14 +198,15 @@ export default function TorusKnotParticles() {
   return (
     <div 
       ref={containerRef} 
-      className="w-full h-[300px] md:h-[350px] relative overflow-hidden"
+      className="w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] relative overflow-hidden"
       style={{ 
         background: 'transparent',
         mixBlendMode: 'normal'
       }}
     >
       <Canvas
-        camera={{ position: [0, 0, 4.5], fov: 40 }}
+        camera={{ position: [0, 0, 4.5], fov: typeof window !== 'undefined' && window.innerWidth < 640 ? 50 : 40 }}
+        dpr={[1, typeof window !== 'undefined' && window.innerWidth < 768 ? 1.5 : 2]}
         gl={{ 
           antialias: true, 
           alpha: true,

@@ -46,6 +46,13 @@ export default function Stepper({
   const isCompleted = currentStep > totalSteps;
   const isLastStep = currentStep === totalSteps;
 
+  // Sync with initialStep prop changes (only when initialStep changes externally)
+  useLayoutEffect(() => {
+    if (initialStep >= 1 && initialStep <= totalSteps) {
+      setCurrentStep(initialStep);
+    }
+  }, [initialStep, totalSteps]);
+
   const updateStep = (newStep: number) => {
     setCurrentStep(newStep);
     if (newStep > totalSteps) onFinalStepCompleted();

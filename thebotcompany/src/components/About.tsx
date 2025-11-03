@@ -18,12 +18,12 @@ const MotionReveal = ({ children }: { children: React.ReactNode }) => {
 
 const About = () => {
   return (
-    <section className="py-8 md:py-12 px-4 md:px-6 bg-gradient-to-b from-black via-black to-[#001a2e]/50">
+    <section className="py-6 sm:py-8 md:py-12 px-4 sm:px-6 bg-gradient-to-b from-black via-black to-[#001a2e]/50">
       <div className="max-w-7xl mx-auto">
         <MotionReveal>
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
-            <div>
-              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight pixel-font font-heading">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
+            <div className="order-2 md:order-1">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight pixel-font font-heading">
                 <DecryptedText
                   text="We build bots that think,"
                   speed={90}
@@ -49,7 +49,7 @@ const About = () => {
                 />
               </h2>
             </div>
-            <div className="relative" style={{ background: 'transparent', zIndex: 1 }}>
+            <div className="relative order-1 md:order-2" style={{ background: 'transparent', zIndex: 1 }}>
               <TorusKnotParticles />
             </div>
           </div>

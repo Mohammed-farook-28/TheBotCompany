@@ -18,7 +18,7 @@ const BrandCarousel = ({ logos }: { logos: LogoItem[] }) => {
         {[...logos, ...logos].map((logo, i) => (
           <div
             key={i}
-            className="w-32 h-16 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-[0_0_15px_rgba(0,186,255,0.5)]"
+            className="w-20 h-10 sm:w-24 sm:h-12 md:w-32 md:h-16 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-[0_0_15px_rgba(0,186,255,0.5)]"
           >
             {logo.url ? (
               <a
@@ -93,7 +93,7 @@ const TrustedBy = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-white/60 text-center mb-12 text-sm tracking-wide uppercase"
+          className="text-white/60 text-center mb-8 sm:mb-12 text-xs sm:text-sm tracking-wide uppercase px-4"
         >
           Trusted by teams building the future.
         </motion.p>
