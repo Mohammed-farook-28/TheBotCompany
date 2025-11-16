@@ -451,10 +451,12 @@ const PillNav: React.FC<PillNavProps> = ({
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
             aria-expanded={isMobileMenuOpen}
-            className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 relative transition-all duration-200"
+            className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 relative transition-all duration-200 touch-manipulation active:scale-95"
             style={{
               width: 'var(--nav-h)',
               height: 'var(--nav-h)',
+              minWidth: '44px',
+              minHeight: '44px',
               background: 'var(--base, #000)',
               border: '1px solid rgba(255,255,255,0.1)'
             }}
@@ -505,7 +507,7 @@ const PillNav: React.FC<PillNavProps> = ({
               };
 
               const linkClasses =
-                'block py-3 px-4 text-[16px] font-bold rounded-[50px] transition-all duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]';
+                'block py-3.5 px-4 text-[16px] font-bold rounded-[50px] transition-all duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] touch-manipulation active:scale-95 min-h-[44px] flex items-center';
 
               return (
                 <li key={item.href}>

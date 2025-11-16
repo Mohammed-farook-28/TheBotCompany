@@ -35,10 +35,10 @@ function Planet3D({
   const Icon = planet.icon;
   const isSelected = selectedPlanet?.id === planet.id;
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (meshRef.current) {
-      // Slow planet self-rotation
-      meshRef.current.rotation.y += 0.002;
+      // Slow planet self-rotation - use delta for frame-independent animation
+      meshRef.current.rotation.y += delta * 0.1;
     }
   });
 
@@ -161,9 +161,9 @@ function Planet3D({
 function CentralStar() {
   const meshRef = useRef<THREE.Mesh>(null);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (meshRef.current) {
-      meshRef.current.rotation.x += 0.01;
+      meshRef.current.rotation.x += delta * 0.5;
     }
   });
 
@@ -600,8 +600,14 @@ export default function GalaxyPlanets3D({ planetsData }: GalaxyPlanets3DProps) {
           position: typeof window !== 'undefined' && window.innerWidth < 640 ? [0, 1.5, 14] : [0, 2, 12], 
           fov: typeof window !== 'undefined' && window.innerWidth < 640 ? 45 : 40 
         }}
-        dpr={[1, typeof window !== 'undefined' && window.innerWidth < 768 ? 1.5 : 2]}
-        gl={{ antialias: true, alpha: true }}
+        dpr={[1, typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : 1.5]}
+        gl={{ 
+          antialias: typeof window !== 'undefined' && window.innerWidth >= 768,
+          alpha: true,
+          powerPreference: typeof window !== 'undefined' && window.innerWidth < 768 ? 'low-power' : 'high-performance',
+          preserveDrawingBuffer: false
+        }}
+        performance={{ min: 0.5 }}
         style={{ background: "transparent" }}
       >
         <GalaxyScene
@@ -627,7 +633,7 @@ export default function GalaxyPlanets3D({ planetsData }: GalaxyPlanets3DProps) {
         <button
           onClick={startOrbitAnimation}
           disabled={isOrbiting}
-          className="px-4 sm:px-6 py-2 sm:py-3 bg-[#00baff] text-black font-bold text-sm sm:text-base rounded-full shadow-lg shadow-[#00baff]/50 hover:shadow-[#00baff]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap"
+          className="px-4 sm:px-6 py-3 sm:py-3 bg-[#00baff] text-black font-bold text-sm sm:text-base rounded-full shadow-lg shadow-[#00baff]/50 hover:shadow-[#00baff]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap touch-manipulation active:scale-95 min-h-[44px]"
         >
           {isOrbiting
             ? "Orbiting..."

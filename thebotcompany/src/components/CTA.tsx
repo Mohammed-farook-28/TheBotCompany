@@ -8,7 +8,7 @@ const AnimatedButton = ({ children, href }: { children: React.ReactNode; href: s
       href={href}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-[#00baff] text-black font-bold text-base sm:text-lg rounded-full overflow-hidden cursor-pointer"
+      className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#00baff] text-black font-bold text-base sm:text-lg rounded-full overflow-hidden cursor-pointer touch-manipulation active:scale-95 min-h-[44px]"
     >
       <motion.span
         className="absolute inset-0 bg-white"
@@ -29,7 +29,7 @@ const AnimatedButton = ({ children, href }: { children: React.ReactNode; href: s
 
 const CTA = () => {
   return (
-    <section className="py-8 md:py-12 px-6 bg-gradient-to-b from-[#001a2e] via-[#001a2e]/70 to-black relative z-10">
+    <section className="py-8 md:py-12 px-6 bg-black relative z-10">
       <div className="max-w-4xl mx-auto text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

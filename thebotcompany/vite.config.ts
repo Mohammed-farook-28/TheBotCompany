@@ -32,10 +32,15 @@ export default defineConfig({
       compress: {
         drop_console: true, // Remove console.logs in production
         drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'], // Remove specific console methods
       },
     },
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
+    // Source maps for production (optional - set to false for smaller builds)
+    sourcemap: false,
+    // Optimize asset inlining
+    assetsInlineLimit: 4096, // Inline assets smaller than 4kb
   },
   // Performance optimizations
   server: {

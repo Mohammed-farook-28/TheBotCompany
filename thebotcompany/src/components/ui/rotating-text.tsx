@@ -35,26 +35,26 @@ export default function RotatingText({
 
   // Extract font size from className if provided, otherwise use responsive defaults
   const getFontSizeClass = () => {
-    if (className?.includes('text-3xl')) return 'text-3xl md:text-4xl lg:text-5xl';
-    if (className?.includes('text-4xl')) return 'text-4xl md:text-5xl lg:text-6xl';
-    if (className?.includes('text-5xl')) return 'text-5xl md:text-6xl lg:text-7xl';
-    return 'text-3xl md:text-4xl lg:text-5xl'; // Default responsive
+    if (className?.includes('text-3xl')) return 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl';
+    if (className?.includes('text-4xl')) return 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl';
+    if (className?.includes('text-5xl')) return 'text-4xl sm:text-5xl md:text-6xl lg:text-7xl';
+    return 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'; // Default responsive
   };
 
   const fontSizeClass = getFontSizeClass();
 
   return (
-    <div className={cn("flex items-center whitespace-nowrap overflow-visible w-full", className)}>
-      <span className={`text-white ${fontSizeClass} font-bold font-heading pixel-font whitespace-nowrap overflow-visible`}>
+    <div className={cn("flex flex-col sm:flex-row items-center sm:items-center justify-center sm:justify-start whitespace-nowrap overflow-visible w-full", className)}>
+      <span className={`text-white ${fontSizeClass} font-bold font-heading pixel-font whitespace-nowrap overflow-visible text-center sm:text-left`}>
         {baseText}
       </span>
       <span 
         ref={wordContainerRef}
-        className="ml-4 inline-block relative overflow-visible"
+        className="mt-2 sm:mt-0 sm:ml-4 inline-block relative overflow-visible"
         style={{ 
           width: `${longestWord.length * 0.8}em`, // Fixed width based on longest word
           minWidth: `${longestWord.length * 0.8}em`,
-          textAlign: 'left'
+          textAlign: 'center'
         }}
       >
         <AnimatePresence mode="wait">

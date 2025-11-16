@@ -1,6 +1,7 @@
-import { motion } from 'framer-motion';
-import { Suspense, lazy } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Suspense, lazy, useState, useEffect } from 'react';
 import { methodologyTimelineData } from './ui/methodology-timeline-data';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Lazy load heavy 3D component
 const GalaxyPlanets3D = lazy(() => import('./ui/galaxy-planets-3d'));
@@ -20,6 +21,9 @@ const RevealOnScroll = ({ children, delay = 0 }: { children: React.ReactNode; de
 };
 
 const Methodology = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
   const steps = [
     { title: 'Listen.', description: 'Map needs.' },
     { title: 'Design.', description: 'Wireframe workflows.' },
@@ -28,8 +32,37 @@ const Methodology = () => {
     { title: 'Evolve.', description: 'Grow with feedback.' },
   ];
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-advance carousel on mobile
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % steps.length);
+    }, 4000); // Change slide every 4 seconds
+    
+    return () => clearInterval(interval);
+  }, [isMobile, steps.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % steps.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + steps.length) % steps.length);
+  };
+
   return (
-    <section className="py-8 md:py-12 px-6 bg-gradient-to-b from-[#001a2e]/80 via-[#001a2e]/30 to-black relative z-10">
+    <section className="py-8 md:py-12 px-4 sm:px-6 bg-black relative z-10 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -44,27 +77,90 @@ const Methodology = () => {
           <div className="w-32 h-px bg-gradient-to-r from-transparent via-[#00baff] to-transparent mx-auto"></div>
         </motion.div>
 
-        {/* Traditional Linear Steps - Hidden on larger screens */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 mt-12 sm:mt-16 md:hidden">
-          {steps.map((step, index) => (
-            <RevealOnScroll key={index} delay={index * 0.1}>
-              <div className="relative">
-                {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-full w-full h-px bg-gradient-to-r from-[#00baff] to-transparent"></div>
-                )}
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-full bg-[#00baff] flex items-center justify-center mb-6 mx-auto shadow-[0_0_30px_rgba(0,186,255,0.5)]">
-                    <span className="text-black font-bold text-xl">{index + 1}</span>
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-2 text-center">
-                    {step.title}
-                  </h3>
-                  <p className="text-white/60 text-center">{step.description}</p>
-                </div>
-              </div>
-            </RevealOnScroll>
-          ))}
-        </div>
+        {/* Mobile Carousel - Beautiful carousel for mobile only */}
+        {isMobile && (
+          <div className="md:hidden mt-8 relative">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-black via-black to-[#001a2e]/30 border border-[#00baff]/20 p-6 min-h-[320px] flex items-center justify-center">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={currentSlide}
+                  initial={{ opacity: 0, x: 100, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -100, scale: 0.9 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="w-full flex flex-col items-center justify-center"
+                >
+                  {/* Step Number Circle */}
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
+                    className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00baff] to-[#0099cc] flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(0,186,255,0.6)] relative"
+                  >
+                    <span className="text-black font-bold text-2xl z-10">{currentSlide + 1}</span>
+                    <div className="absolute inset-0 rounded-full bg-[#00baff]/20 animate-ping"></div>
+                  </motion.div>
+
+                  {/* Step Title */}
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="text-3xl font-bold text-white mb-3 text-center"
+                  >
+                    {steps[currentSlide].title}
+                  </motion.h3>
+
+                  {/* Step Description */}
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.4 }}
+                    className="text-white/70 text-base text-center max-w-[280px] leading-relaxed"
+                  >
+                    {steps[currentSlide].description}
+                  </motion.p>
+
+                  {/* Progress Indicator */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="mt-6 flex gap-2"
+                  >
+                    {steps.map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={`h-1.5 rounded-full transition-all duration-500 ${
+                          idx === currentSlide
+                            ? 'w-8 bg-[#00baff]'
+                            : 'w-1.5 bg-[#00baff]/30'
+                        }`}
+                      />
+                    ))}
+                  </motion.div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Navigation Buttons */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-2 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/80 backdrop-blur-md border border-[#00baff]/40 hover:border-[#00baff] hover:bg-[#00baff]/15 transition-all duration-300 touch-manipulation active:scale-95 z-10 shadow-lg"
+                aria-label="Previous step"
+              >
+                <ChevronLeft className="w-6 h-6 text-[#00baff]" />
+              </button>
+
+              <button
+                onClick={nextSlide}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/80 backdrop-blur-md border border-[#00baff]/40 hover:border-[#00baff] hover:bg-[#00baff]/15 transition-all duration-300 touch-manipulation active:scale-95 z-10 shadow-lg"
+                aria-label="Next step"
+              >
+                <ChevronRight className="w-6 h-6 text-[#00baff]" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Interactive Orbital Timeline - Visible on larger screens */}
         <div className="hidden md:block mt-12 lg:mt-20">

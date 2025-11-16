@@ -47,7 +47,7 @@ export default function DecryptedText({
   }, [text]);
 
   useEffect(() => {
-    let interval: number | null = null;
+    let rafId: number | null = null;
     let currentIteration = 0;
 
     const getNextIndex = (revealedSet: Set<number>): number => {
@@ -117,39 +117,59 @@ export default function DecryptedText({
 
     if (isHovering) {
       setIsScrambling(true);
-      interval = window.setInterval(() => {
-        setRevealedIndices(prevRevealed => {
-          if (sequential) {
-            // Line-by-line reveal
-            const currentLineEnd = processedLines.slice(0, currentLine + 1).join('').length;
-            
-            if (prevRevealed.size < currentLineEnd) {
-              const nextIndex = getNextIndex(prevRevealed);
-              const newRevealed = new Set(prevRevealed);
-              newRevealed.add(nextIndex);
-              setDisplayText(shuffleText(text, newRevealed));
-              return newRevealed;
-            } else if (currentLine < processedLines.length - 1) {
-              // Move to next line
-              setCurrentLine(prev => prev + 1);
-              return prevRevealed;
+      // Use requestAnimationFrame for smoother performance instead of setInterval
+      let lastTime = 0;
+      let shouldContinue = true;
+      const animate = (currentTime: number) => {
+        if (!shouldContinue || rafId === null) return;
+        
+        if (currentTime - lastTime >= speed) {
+          lastTime = currentTime;
+          let done = false;
+          setRevealedIndices(prevRevealed => {
+            if (sequential) {
+              // Line-by-line reveal
+              const currentLineEnd = processedLines.slice(0, currentLine + 1).join('').length;
+              
+              if (prevRevealed.size < currentLineEnd) {
+                const nextIndex = getNextIndex(prevRevealed);
+                const newRevealed = new Set(prevRevealed);
+                newRevealed.add(nextIndex);
+                setDisplayText(shuffleText(text, newRevealed));
+                return newRevealed;
+              } else if (currentLine < processedLines.length - 1) {
+                // Move to next line
+                setCurrentLine(prev => prev + 1);
+                return prevRevealed;
+              } else {
+                done = true;
+                setIsScrambling(false);
+                return prevRevealed;
+              }
             } else {
-              if (interval) clearInterval(interval);
-              setIsScrambling(false);
+              setDisplayText(shuffleText(text, prevRevealed));
+              currentIteration++;
+              if (currentIteration >= maxIterations) {
+                done = true;
+                setIsScrambling(false);
+                setDisplayText(text);
+                return prevRevealed;
+              }
               return prevRevealed;
             }
+          });
+          
+          if (done) {
+            shouldContinue = false;
+            rafId = null;
           } else {
-            setDisplayText(shuffleText(text, prevRevealed));
-            currentIteration++;
-            if (currentIteration >= maxIterations) {
-              if (interval) clearInterval(interval);
-              setIsScrambling(false);
-              setDisplayText(text);
-            }
-            return prevRevealed;
+            rafId = requestAnimationFrame(animate);
           }
-        });
-      }, speed);
+        } else {
+          rafId = requestAnimationFrame(animate);
+        }
+      };
+      rafId = requestAnimationFrame(animate);
     } else {
       setDisplayText(text);
       setRevealedIndices(new Set());
@@ -158,7 +178,10 @@ export default function DecryptedText({
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
     };
   }, [isHovering, text, speed, maxIterations, sequential, revealDirection, characters, useOriginalCharsOnly, currentLine]);
 

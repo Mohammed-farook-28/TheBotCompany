@@ -181,8 +181,14 @@ export function PromptingIsAllYouNeed() {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const ctx = canvas.getContext("2d")
+    const ctx = canvas.getContext("2d", { 
+      alpha: false, // No transparency needed for better performance
+      desynchronized: true // Allow async rendering
+    })
     if (!ctx) return
+    
+    // Optimize canvas rendering
+    ctx.imageSmoothingEnabled = false // Pixel art doesn't need smoothing
 
     let isInitialized = false
 
@@ -405,19 +411,42 @@ export function PromptingIsAllYouNeed() {
     const drawGame = () => {
       if (!ctx) return
 
+      // Use clearRect instead of fillRect for better performance
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.fillStyle = BACKGROUND_COLOR
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+      // Batch pixel rendering for better performance
+      ctx.fillStyle = COLOR
+      const unhitPixels: Pixel[] = []
+      const hitPixels: Pixel[] = []
+      
       pixelsRef.current.forEach((pixel) => {
-        ctx.fillStyle = pixel.hit ? HIT_COLOR : COLOR
+        if (pixel.hit) {
+          hitPixels.push(pixel)
+        } else {
+          unhitPixels.push(pixel)
+        }
+      })
+
+      // Draw unhit pixels first
+      unhitPixels.forEach((pixel) => {
         ctx.fillRect(pixel.x, pixel.y, pixel.size, pixel.size)
       })
 
+      // Draw hit pixels
+      ctx.fillStyle = HIT_COLOR
+      hitPixels.forEach((pixel) => {
+        ctx.fillRect(pixel.x, pixel.y, pixel.size, pixel.size)
+      })
+
+      // Draw ball
       ctx.fillStyle = BALL_COLOR
       ctx.beginPath()
       ctx.arc(ballRef.current.x, ballRef.current.y, ballRef.current.radius, 0, Math.PI * 2)
       ctx.fill()
 
+      // Draw paddles
       ctx.fillStyle = PADDLE_COLOR
       paddlesRef.current.forEach((paddle) => {
         ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height)
@@ -426,20 +455,56 @@ export function PromptingIsAllYouNeed() {
 
     let animationId: number;
     let isRunning = true;
+    let lastFrameTime = 0;
+    const targetFPS = 60;
+    const frameInterval = 1000 / targetFPS;
 
-    const gameLoop = () => {
+    // Throttle resize handler
+    let resizeTimeout: number | null = null;
+    const throttledResize = () => {
+      if (resizeTimeout) return;
+      resizeTimeout = window.setTimeout(() => {
+        resizeCanvas();
+        resizeTimeout = null;
+      }, 150);
+    };
+
+    const gameLoop = (currentTime: number) => {
       if (!isRunning) return;
-      updateGame()
-      drawGame()
+      
+      // Frame rate limiting for better performance
+      const elapsed = currentTime - lastFrameTime;
+      if (elapsed >= frameInterval) {
+        updateGame()
+        drawGame()
+        lastFrameTime = currentTime - (elapsed % frameInterval);
+      }
+      
       animationId = requestAnimationFrame(gameLoop)
     }
 
+    // Pause when tab is hidden
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        isRunning = false;
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+        }
+      } else {
+        isRunning = true;
+        lastFrameTime = performance.now();
+        animationId = requestAnimationFrame(gameLoop);
+      }
+    };
+
     resizeCanvas()
-    window.addEventListener("resize", resizeCanvas)
+    window.addEventListener("resize", throttledResize, { passive: true })
+    document.addEventListener("visibilitychange", handleVisibilityChange)
     
     // Start the game loop with a small delay to improve initial load
     setTimeout(() => {
-      gameLoop()
+      lastFrameTime = performance.now();
+      animationId = requestAnimationFrame(gameLoop)
     }, 100)
 
     return () => {
@@ -447,7 +512,11 @@ export function PromptingIsAllYouNeed() {
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
-      window.removeEventListener("resize", resizeCanvas)
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      window.removeEventListener("resize", throttledResize)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
   }, [])
 

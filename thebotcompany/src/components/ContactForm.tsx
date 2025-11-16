@@ -150,15 +150,12 @@ const ContactForm = () => {
             body: urlParams.toString()
           });
           
-          console.log('Form data sent to Google Sheets');
+          // Form data sent successfully
         } catch (fetchError) {
-          console.error('Error sending to Google Sheets:', fetchError);
-          // Continue anyway - don't block user experience
+          // Error sending to Google Sheets - continue anyway, don't block user experience
+          // Error is silently handled to maintain user experience
         }
       }
-      
-      // Log to console as fallback
-      console.log('Form submitted:', sheetData);
       
       // Clear saved form data after successful submission
       if (typeof window !== 'undefined') {
@@ -175,8 +172,7 @@ const ContactForm = () => {
       }, 2000);
       
     } catch (error) {
-      console.error('Error submitting form:', error);
-      // Still show success and open Cal.com even if Google Sheets fails
+      // Error submitting form - still show success and open Cal.com even if Google Sheets fails
     setIsSubmitted(true);
       setTimeout(() => {
         window.open('https://cal.com/thebotcompany/meet-the-bot', '_blank', 'noopener,noreferrer');
@@ -518,7 +514,7 @@ const ContactForm = () => {
 
   if (isSubmitted) {
     return (
-      <section className="py-8 md:py-12 px-6 bg-gradient-to-b from-[#001a2e]/30 via-[#001a2e]/50 to-[#001a2e] relative z-10">
+      <section className="py-8 md:py-12 px-6 bg-black relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -555,7 +551,7 @@ const ContactForm = () => {
   }
 
   return (
-    <section className="py-8 md:py-12 px-4 md:px-6 bg-gradient-to-b from-[#001a2e]/30 via-[#001a2e]/50 to-[#001a2e] relative z-10 overflow-x-visible">
+    <section className="py-8 md:py-12 px-4 md:px-6 bg-black relative z-10 overflow-x-visible">
       <div className="max-w-4xl mx-auto relative z-10 overflow-x-visible">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -563,7 +559,7 @@ const ContactForm = () => {
           viewport={{ once: true }}
           className="text-center mb-6 px-4"
         >
-          {savedData && (
+          {savedData && savedData.name && savedData.name.trim() !== '' && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -572,18 +568,16 @@ const ContactForm = () => {
               ✓ Your progress has been saved. Continuing from where you left off...
             </motion.div>
           )}
-          <div className="flex justify-center items-center overflow-visible">
+          <div className="flex justify-center items-center overflow-visible w-full">
           <RotatingText 
             words={['idea', 'dream', 'app', 'vision']}
             interval={2000}
             baseText="Let's build your next"
             highlightColor="#00baff"
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold !w-auto sm:ml-[2rem] md:ml-[2.5rem] lg:ml-[3rem]"
           />
           </div>
-          <p className="text-base sm:text-lg md:text-xl text-white/70">
-            Tell us about your idea and we'll make it happen
-          </p>
+          
         </motion.div>
 
         <motion.div
@@ -623,7 +617,7 @@ const ContactForm = () => {
                   }
                 }}
                 placeholder="Your full name"
-                className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors"
+                className="w-full px-4 py-3.5 sm:py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors text-base"
                 required
               />
             </div>
@@ -652,7 +646,7 @@ const ContactForm = () => {
                   }
                 }}
                 placeholder="your@email.com"
-                className={`w-full px-4 py-3 bg-black border rounded-lg text-white placeholder-white/50 focus:outline-none transition-colors ${
+                className={`w-full px-4 py-3.5 sm:py-3 bg-black border rounded-lg text-white placeholder-white/50 focus:outline-none transition-colors text-base ${
                   formData.email.trim() !== '' && !validateEmail(formData.email)
                     ? 'border-red-500 focus:border-red-500'
                     : 'border-white/20 focus:border-[#00baff]'
@@ -683,7 +677,7 @@ const ContactForm = () => {
                     value={countrySearch}
                     onChange={(e) => setCountrySearch(e.target.value)}
                     placeholder="Search country or code..."
-                    className="w-full pl-10 pr-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors mb-2"
+                    className="w-full pl-10 pr-4 py-3.5 sm:py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors mb-2 text-base"
                   />
                 </div>
                 <select
@@ -692,7 +686,7 @@ const ContactForm = () => {
                     handleInputChange('countryCode', e.target.value);
                     setCountrySearch(''); // Clear search box after selection
                   }}
-                  className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white focus:border-[#00baff] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3.5 sm:py-3 bg-black border border-white/20 rounded-lg text-white focus:border-[#00baff] focus:outline-none transition-colors text-base"
                   style={{ maxHeight: '200px', overflowY: 'auto' }}
                 >
                   {filteredCountryCodes.map((country, index) => (
@@ -713,7 +707,7 @@ const ContactForm = () => {
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                   placeholder="123 456 7890"
-                className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors"
+                className="w-full px-4 py-3.5 sm:py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors text-base"
               />
               </div>
             </div>
@@ -734,8 +728,8 @@ const ContactForm = () => {
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   placeholder="Describe your project in detail. What do you want to build?"
-                  rows={4}
-                  className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors resize-none"
+                  rows={5}
+                  className="w-full px-4 py-3.5 sm:py-3 bg-black border border-white/20 rounded-lg text-white placeholder-white/50 focus:border-[#00baff] focus:outline-none transition-colors resize-none text-base"
                   required
                 />
                 </div>
@@ -745,7 +739,7 @@ const ContactForm = () => {
                   <select
                     value={formData.timeline}
                     onChange={(e) => handleInputChange('timeline', e.target.value)}
-                    className="w-full px-4 py-3 bg-black border border-white/20 rounded-lg text-white focus:border-[#00baff] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3.5 sm:py-3 bg-black border border-white/20 rounded-lg text-white focus:border-[#00baff] focus:outline-none transition-colors text-base"
                   >
                     <option value="">Select timeline</option>
                     {timelineOptions.map((option) => (

@@ -19,9 +19,9 @@ const Footer = () => {
 
   return (
     <FooterGlow>
-      <footer className="bg-black py-12 px-6">
+      <footer className="bg-black py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 items-center text-center md:text-left">
+          <div className="grid md:grid-cols-3 gap-6 sm:gap-8 items-center text-center md:text-left">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -56,7 +56,8 @@ const Footer = () => {
                   key={index}
                   href={social.href}
                   aria-label={social.label}
-                  className="text-white/60 hover:text-[#00baff] transition-all duration-300 hover:drop-shadow-[0_0_10px_rgba(0,186,255,0.8)]"
+                  className="text-white/60 hover:text-[#00baff] transition-all duration-300 hover:drop-shadow-[0_0_10px_rgba(0,186,255,0.8)] touch-manipulation active:scale-95"
+                  style={{ minWidth: '44px', minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <social.icon className="w-6 h-6" />
                 </a>

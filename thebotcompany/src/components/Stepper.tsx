@@ -82,16 +82,16 @@ export default function Stepper({
   };
 
   return (
-    <div
-      className="flex min-h-full flex-1 flex-col items-center justify-center p-4"
-      {...rest}
-    >
+      <div
+        className="flex min-h-full flex-1 flex-col items-center justify-center p-3 sm:p-4"
+        {...rest}
+      >
       <GlowingEffect className="w-full max-w-2xl mx-auto">
         <div
           className={`w-full rounded-2xl shadow-2xl bg-black/95 backdrop-blur-sm border border-white/10 relative z-10 ${stepCircleContainerClassName}`}
           style={{ border: '1px solid #333' }}
         >
-        <div className={`${stepContainerClassName} flex w-full items-center p-4 md:p-6`}>
+        <div className={`${stepContainerClassName} flex w-full items-center p-3 sm:p-4 md:p-6 overflow-x-auto`}>
           {stepsArray.map((_, index) => {
             const stepNumber = index + 1;
             const isNotLastStep = index < totalSteps - 1;
@@ -140,10 +140,10 @@ export default function Stepper({
               {currentStep !== 1 && (
                 <button
                   onClick={handleBack}
-                  className={`duration-350 rounded px-3 py-2 transition font-bold text-sm md:text-base ${
+                  className={`duration-350 rounded px-4 py-3 transition font-bold text-base md:text-base touch-manipulation min-h-[44px] ${
                     currentStep === 1
                       ? 'pointer-events-none opacity-50 text-neutral-400'
-                      : 'text-white/60 hover:text-white border border-white/20 hover:border-[#00baff] hover:bg-[#00baff]/10'
+                      : 'text-white/60 hover:text-white border border-white/20 hover:border-[#00baff] hover:bg-[#00baff]/10 active:scale-95'
                   }`}
                   {...backButtonProps}
                 >
@@ -153,7 +153,7 @@ export default function Stepper({
               <button
                 onClick={isLastStep ? handleComplete : handleNext}
                 data-stepper-next
-                className="duration-350 flex items-center justify-center rounded-full bg-[#00baff] py-2 px-4 md:px-6 font-bold tracking-tight text-black transition hover:bg-[#00baff]/80 hover:shadow-[0_0_20px_rgba(0,186,255,0.5)] text-sm md:text-base"
+                className="duration-350 flex items-center justify-center rounded-full bg-[#00baff] py-3 px-6 md:px-6 font-bold tracking-tight text-black transition hover:bg-[#00baff]/80 hover:shadow-[0_0_20px_rgba(0,186,255,0.5)] active:scale-95 text-base md:text-base touch-manipulation min-h-[44px]"
                 {...nextButtonProps}
               >
                 {isLastStep ? 'Submit' : nextButtonText}
