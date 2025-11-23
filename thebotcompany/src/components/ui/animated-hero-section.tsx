@@ -159,6 +159,10 @@ interface Ball {
   dx: number
   dy: number
   radius: number
+  lastX: number
+  lastY: number
+  stuckCount: number
+  cornerStuckCount: number
 }
 
 interface Paddle {
@@ -173,7 +177,7 @@ interface Paddle {
 export function PromptingIsAllYouNeed() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pixelsRef = useRef<Pixel[]>([])
-  const ballRef = useRef<Ball>({ x: 0, y: 0, dx: 0, dy: 0, radius: 0 })
+  const ballRef = useRef<Ball>({ x: 0, y: 0, dx: 0, dy: 0, radius: 0, lastX: 0, lastY: 0, stuckCount: 0, cornerStuckCount: 0 })
   const paddlesRef = useRef<Paddle[]>([])
   const scaleRef = useRef(1)
 
@@ -181,28 +185,28 @@ export function PromptingIsAllYouNeed() {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const ctx = canvas.getContext("2d", { 
+    const ctx = canvas.getContext("2d", {
       alpha: false, // No transparency needed for better performance
       desynchronized: true // Allow async rendering
     })
     if (!ctx) return
-    
+
     // Optimize canvas rendering
     ctx.imageSmoothingEnabled = false // Pixel art doesn't need smoothing
 
-    let isInitialized = false
+
 
     const resizeCanvas = () => {
       const newWidth = window.innerWidth
       const newHeight = window.innerHeight
       canvas.width = newWidth
       canvas.height = newHeight
-      
+
       // Better scale calculation for mobile - use smaller reference for mobile
       const isMobile = newWidth < 640
       const referenceSize = isMobile ? 800 : 1000
       scaleRef.current = Math.min(newWidth / referenceSize, newHeight / referenceSize)
-      
+
       // Re-initialize game on resize to properly scale everything
       initializeGame()
     }
@@ -253,19 +257,19 @@ export function PromptingIsAllYouNeed() {
         const totalWidth =
           wordIndex === 0
             ? words[0].split(" ").reduce((width, w, index) => {
-                return (
-                  width +
-                  calculateWordWidth(w, adjustedLargePixelSize) +
-                  (index > 0 ? WORD_SPACING * adjustedLargePixelSize : 0)
-                )
-              }, 0)
+              return (
+                width +
+                calculateWordWidth(w, adjustedLargePixelSize) +
+                (index > 0 ? WORD_SPACING * adjustedLargePixelSize : 0)
+              )
+            }, 0)
             : words[1].split(" ").reduce((width, w, index) => {
-                return (
-                  width +
-                  calculateWordWidth(w, adjustedSmallPixelSize) +
-                  (index > 0 ? WORD_SPACING * adjustedSmallPixelSize : 0)
-                )
-              }, 0)
+              return (
+                width +
+                calculateWordWidth(w, adjustedSmallPixelSize) +
+                (index > 0 ? WORD_SPACING * adjustedSmallPixelSize : 0)
+              )
+            }, 0)
 
         let startX = (canvas.width - totalWidth) / 2
 
@@ -299,6 +303,10 @@ export function PromptingIsAllYouNeed() {
         dx: -BALL_SPEED,
         dy: BALL_SPEED,
         radius: adjustedLargePixelSize / 2,
+        lastX: ballStartX,
+        lastY: ballStartY,
+        stuckCount: 0,
+        cornerStuckCount: 0,
       }
 
       const paddleWidth = adjustedLargePixelSize
@@ -347,10 +355,36 @@ export function PromptingIsAllYouNeed() {
       ball.x += ball.dx
       ball.y += ball.dy
 
-      if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
+      // Stuck detection
+      if (Math.abs(ball.x - ball.lastX) < 1 && Math.abs(ball.y - ball.lastY) < 1) {
+        ball.stuckCount++
+        if (ball.stuckCount > 60) { // Stuck for ~1 second
+          // Respawn ball
+          ball.x = canvas.width / 2
+          ball.y = canvas.height / 2
+          ball.dx = (Math.random() > 0.5 ? 1 : -1) * Math.abs(ball.dx)
+          ball.dy = (Math.random() > 0.5 ? 1 : -1) * Math.abs(ball.dy)
+          ball.stuckCount = 0
+        }
+      } else {
+        ball.stuckCount = 0
+        ball.lastX = ball.x
+        ball.lastY = ball.y
+      }
+
+      if (ball.y - ball.radius < 0) {
+        ball.y = ball.radius
+        ball.dy = -ball.dy
+      } else if (ball.y + ball.radius > canvas.height) {
+        ball.y = canvas.height - ball.radius
         ball.dy = -ball.dy
       }
-      if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
+
+      if (ball.x - ball.radius < 0) {
+        ball.x = ball.radius
+        ball.dx = -ball.dx
+      } else if (ball.x + ball.radius > canvas.width) {
+        ball.x = canvas.width - ball.radius
         ball.dx = -ball.dx
       }
 
@@ -362,7 +396,16 @@ export function PromptingIsAllYouNeed() {
             ball.y > paddle.y &&
             ball.y < paddle.y + paddle.height
           ) {
-            ball.dx = -ball.dx
+            // Determine side based on paddle position
+            if (paddle.x < canvas.width / 2) {
+              // Left paddle: push right
+              ball.x = paddle.x + paddle.width + ball.radius
+              ball.dx = Math.abs(ball.dx)
+            } else {
+              // Right paddle: push left
+              ball.x = paddle.x - ball.radius
+              ball.dx = -Math.abs(ball.dx)
+            }
           }
         } else {
           if (
@@ -371,7 +414,16 @@ export function PromptingIsAllYouNeed() {
             ball.x > paddle.x &&
             ball.x < paddle.x + paddle.width
           ) {
-            ball.dy = -ball.dy
+            // Determine side based on paddle position
+            if (paddle.y < canvas.height / 2) {
+              // Top paddle: push down
+              ball.y = paddle.y + paddle.height + ball.radius
+              ball.dy = Math.abs(ball.dy)
+            } else {
+              // Bottom paddle: push up
+              ball.y = paddle.y - ball.radius
+              ball.dy = -Math.abs(ball.dy)
+            }
           }
         }
       })
@@ -399,13 +451,52 @@ export function PromptingIsAllYouNeed() {
           pixel.hit = true
           const centerX = pixel.x + pixel.size / 2
           const centerY = pixel.y + pixel.size / 2
-          if (Math.abs(ball.x - centerX) > Math.abs(ball.y - centerY)) {
-            ball.dx = -ball.dx
+
+          const overlapX = (ball.radius + pixel.size / 2) - Math.abs(ball.x - centerX)
+          const overlapY = (ball.radius + pixel.size / 2) - Math.abs(ball.y - centerY)
+
+          if (overlapX < overlapY) {
+            // Collision on X axis
+            if (ball.x < centerX) {
+              ball.x -= overlapX + 0.1 // Add epsilon
+              ball.dx = -Math.abs(ball.dx)
+            } else {
+              ball.x += overlapX + 0.1 // Add epsilon
+              ball.dx = Math.abs(ball.dx)
+            }
           } else {
-            ball.dy = -ball.dy
+            // Collision on Y axis
+            if (ball.y < centerY) {
+              ball.y -= overlapY + 0.1 // Add epsilon
+              ball.dy = -Math.abs(ball.dy)
+            } else {
+              ball.y += overlapY + 0.1 // Add epsilon
+              ball.dy = Math.abs(ball.dy)
+            }
           }
         }
       })
+
+      // Corner Watchdog: Prevent ball from getting stuck in corners
+      const cornerSize = 100
+      const isTopLeft = ball.x < cornerSize && ball.y < cornerSize
+      const isTopRight = ball.x > canvas.width - cornerSize && ball.y < cornerSize
+      const isBottomLeft = ball.x < cornerSize && ball.y > canvas.height - cornerSize
+      const isBottomRight = ball.x > canvas.width - cornerSize && ball.y > canvas.height - cornerSize
+
+      if (isTopLeft || isTopRight || isBottomLeft || isBottomRight) {
+        ball.cornerStuckCount++
+        if (ball.cornerStuckCount > 30) { // 0.5 seconds in corner
+          // Eject towards center
+          ball.x = canvas.width / 2
+          ball.y = canvas.height / 2
+          ball.dx = (Math.random() > 0.5 ? 1 : -1) * Math.abs(ball.dx)
+          ball.dy = (Math.random() > 0.5 ? 1 : -1) * Math.abs(ball.dy)
+          ball.cornerStuckCount = 0
+        }
+      } else {
+        ball.cornerStuckCount = 0
+      }
     }
 
     const drawGame = () => {
@@ -420,7 +511,7 @@ export function PromptingIsAllYouNeed() {
       ctx.fillStyle = COLOR
       const unhitPixels: Pixel[] = []
       const hitPixels: Pixel[] = []
-      
+
       pixelsRef.current.forEach((pixel) => {
         if (pixel.hit) {
           hitPixels.push(pixel)
@@ -471,7 +562,7 @@ export function PromptingIsAllYouNeed() {
 
     const gameLoop = (currentTime: number) => {
       if (!isRunning) return;
-      
+
       // Frame rate limiting for better performance
       const elapsed = currentTime - lastFrameTime;
       if (elapsed >= frameInterval) {
@@ -479,7 +570,7 @@ export function PromptingIsAllYouNeed() {
         drawGame()
         lastFrameTime = currentTime - (elapsed % frameInterval);
       }
-      
+
       animationId = requestAnimationFrame(gameLoop)
     }
 
@@ -500,7 +591,7 @@ export function PromptingIsAllYouNeed() {
     resizeCanvas()
     window.addEventListener("resize", throttledResize, { passive: true })
     document.addEventListener("visibilitychange", handleVisibilityChange)
-    
+
     // Start the game loop with a small delay to improve initial load
     setTimeout(() => {
       lastFrameTime = performance.now();

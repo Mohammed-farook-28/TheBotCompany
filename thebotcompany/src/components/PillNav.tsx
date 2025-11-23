@@ -40,13 +40,13 @@ const PillNav: React.FC<PillNavProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // Track window size for responsive positioning
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -64,19 +64,19 @@ const PillNav: React.FC<PillNavProps> = ({
 
   useEffect(() => {
     let ticking = false;
-    
+
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
           const heroHeight = window.innerHeight;
-          
+
           setScrollY(currentScrollY);
-          
+
           // Stick to top when scrolled past 60% of viewport
           const shouldStick = currentScrollY > heroHeight * 0.6;
           setIsScrolled(shouldStick);
-          
+
           ticking = false;
         });
         ticking = true;
@@ -143,7 +143,7 @@ const PillNav: React.FC<PillNavProps> = ({
     window.addEventListener('resize', onResize);
 
     if (document.fonts?.ready) {
-      document.fonts.ready.then(layout).catch(() => {});
+      document.fonts.ready.then(layout).catch(() => { });
     }
 
     const menu = mobileMenuRef.current;
@@ -287,23 +287,22 @@ const PillNav: React.FC<PillNavProps> = ({
   };
 
   return (
-    <div 
+    <div
       ref={navRef}
-      className={`z-[1000] fixed ${
-        isScrolled 
-          ? 'bg-black/90 backdrop-blur-md border border-white/10 rounded-full px-2 md:px-4' 
+      className={`z-[1000] fixed ${isScrolled
+          ? 'bg-black/90 backdrop-blur-md border border-white/10 rounded-full px-2 md:px-4'
           : 'bg-transparent'
-      } ${isMobile ? 'shadow-lg' : ''} ${className}`}
+        } ${isMobile ? 'shadow-lg' : ''} ${className}`}
       style={{
         willChange: 'transform, background-color, border-color, top, opacity',
         backfaceVisibility: 'hidden',
         left: isMobile ? 'auto' : '50%',
         right: isMobile ? '16px' : 'auto',
-        top: isMobile 
+        top: isMobile
           ? '16px'
           : (isScrolled ? '40px' : `${Math.max(75 - (scrollY * 0.02), 40)}px`),
-        transform: isMobile 
-          ? 'translateY(0) translateZ(0)' 
+        transform: isMobile
+          ? 'translateY(0) translateZ(0)'
           : 'translateX(-50%) translateY(-50%) translateZ(0)',
         opacity: 1,
         transition: isScrolled ? 'all 0.3s ease-out' : 'none'
@@ -362,87 +361,87 @@ const PillNav: React.FC<PillNavProps> = ({
                 marginLeft: '0px'
               }}
             >
-            <ul
-              role="menubar"
-              className="list-none flex items-stretch m-0 p-[3px] h-full"
-              style={{ gap: 'var(--pill-gap)' }}
-            >
-              {items.map((item: NavItem, i: number) => {
-                const isActive = activeHref === item.href;
+              <ul
+                role="menubar"
+                className="list-none flex items-stretch m-0 p-[3px] h-full"
+                style={{ gap: 'var(--pill-gap)' }}
+              >
+                {items.map((item: NavItem, i: number) => {
+                  const isActive = activeHref === item.href;
 
-                const pillStyle = {
-                  background: 'var(--pill-bg, #00baff)',
-                  color: 'var(--pill-text, #000)',
-                  paddingLeft: 'var(--pill-pad-x)',
-                  paddingRight: 'var(--pill-pad-x)'
-                };
+                  const pillStyle = {
+                    background: 'var(--pill-bg, #00baff)',
+                    color: 'var(--pill-text, #000)',
+                    paddingLeft: 'var(--pill-pad-x)',
+                    paddingRight: 'var(--pill-pad-x)'
+                  };
 
-                const PillContent = (
-                  <>
-                    <span
-                      className="hover-circle absolute left-1/2 bottom-0 rounded-full z-[1] block pointer-events-none"
-                      style={{
-                        background: 'var(--base, #000)',
-                        willChange: 'transform'
-                      }}
-                      aria-hidden="true"
-                      ref={el => {
-                        circleRefs.current[i] = el;
-                      }}
-                    />
-                    <span className="label-stack relative inline-block leading-[1] z-[2]">
+                  const PillContent = (
+                    <>
                       <span
-                        className="pill-label relative z-[2] inline-block leading-[1]"
-                        style={{ willChange: 'transform' }}
-                      >
-                        {item.label}
-                      </span>
-                      <span
-                        className="pill-label-hover absolute left-0 top-0 z-[3] inline-block"
+                        className="hover-circle absolute left-1/2 bottom-0 rounded-full z-[1] block pointer-events-none"
                         style={{
-                          color: 'var(--hover-text, #000)',
-                          willChange: 'transform, opacity'
+                          background: 'var(--base, #000)',
+                          willChange: 'transform'
                         }}
                         aria-hidden="true"
-                      >
-                        {item.label}
-                      </span>
-                    </span>
-                    {isActive && (
-                      <span
-                        className="absolute left-1/2 -bottom-[6px] -translate-x-1/2 w-3 h-3 rounded-full z-[4]"
-                        style={{ background: 'var(--base, #000)' }}
-                        aria-hidden="true"
+                        ref={el => {
+                          circleRefs.current[i] = el;
+                        }}
                       />
-                    )}
-                  </>
-                );
+                      <span className="label-stack relative inline-block leading-[1] z-[2]">
+                        <span
+                          className="pill-label relative z-[2] inline-block leading-[1]"
+                          style={{ willChange: 'transform' }}
+                        >
+                          {item.label}
+                        </span>
+                        <span
+                          className="pill-label-hover absolute left-0 top-0 z-[3] inline-block"
+                          style={{
+                            color: 'var(--hover-text, #000)',
+                            willChange: 'transform, opacity'
+                          }}
+                          aria-hidden="true"
+                        >
+                          {item.label}
+                        </span>
+                      </span>
+                      {isActive && (
+                        <span
+                          className="absolute left-1/2 -bottom-[6px] -translate-x-1/2 w-3 h-3 rounded-full z-[4]"
+                          style={{ background: 'var(--base, #000)' }}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </>
+                  );
 
-                const basePillClasses =
-                  'relative overflow-hidden inline-flex items-center justify-center h-full no-underline rounded-full box-border font-bold text-[16px] leading-[0] uppercase tracking-[0.2px] whitespace-nowrap cursor-pointer px-0';
+                  const basePillClasses =
+                    'relative overflow-hidden inline-flex items-center justify-center h-full no-underline rounded-full box-border font-bold text-[16px] leading-[0] uppercase tracking-[0.2px] whitespace-nowrap cursor-pointer px-0';
 
-                return (
-                  <li key={item.href} role="none" className="flex h-full">
-                    <a
-                      role="menuitem"
-                      href={item.href}
-                      className={basePillClasses}
-                      style={{
-                        ...pillStyle,
-                        willChange: 'transform',
-                        backfaceVisibility: 'hidden',
-                        transform: 'translateZ(0)'
-                      }}
-                      aria-label={item.ariaLabel || item.label}
-                      onMouseEnter={() => handleEnter(i)}
-                      onMouseLeave={() => handleLeave(i)}
-                    >
-                      {PillContent}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+                  return (
+                    <li key={item.href} role="none" className="flex h-full">
+                      <a
+                        role="menuitem"
+                        href={item.href}
+                        className={basePillClasses}
+                        style={{
+                          ...pillStyle,
+                          willChange: 'transform',
+                          backfaceVisibility: 'hidden',
+                          transform: 'translateZ(0)'
+                        }}
+                        aria-label={item.ariaLabel || item.label}
+                        onMouseEnter={() => handleEnter(i)}
+                        onMouseLeave={() => handleLeave(i)}
+                      >
+                        {PillContent}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </div>
 
@@ -472,9 +471,9 @@ const PillNav: React.FC<PillNavProps> = ({
           </button>
         </nav>
 
-         <div
-           ref={mobileMenuRef}
-           className="md:hidden absolute top-[3.5em] right-0 w-[280px] sm:w-[320px] rounded-[27px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[998] origin-top-right"
+        <div
+          ref={mobileMenuRef}
+          className="md:hidden absolute top-[3.5em] right-0 w-fit min-w-[160px] rounded-[27px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[998] origin-top-right"
           style={{
             ...cssVars,
             background: 'var(--base, #000)',

@@ -1,4 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
+import { SpotlightCard } from '@/components/ui/spotlight-card'
 import { Shield, Users, Fingerprint } from 'lucide-react'
 
 export function Features() {
@@ -7,7 +8,7 @@ export function Features() {
             <div className="mx-auto max-w-3xl lg:max-w-5xl px-4 sm:px-6">
                 <div className="relative">
                     <div className="relative z-20 grid grid-cols-6 gap-2 sm:gap-3">
-                        <Card className="relative col-span-full flex overflow-hidden lg:col-span-2">
+                        <SpotlightCard className="relative col-span-full flex overflow-hidden lg:col-span-2">
                             <CardContent className="relative m-auto size-fit pt-4 sm:pt-6 px-2 sm:px-0">
                                 <div className="relative flex h-16 sm:h-20 md:h-24 w-40 sm:w-48 md:w-56 items-center">
                                     <svg className="text-muted absolute inset-0 size-full" viewBox="0 0 254 104" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,10 +19,10 @@ export function Features() {
                                     </svg>
                                     <span className="mx-auto block w-fit text-3xl sm:text-4xl md:text-5xl font-semibold text-[#00baff]">100%</span>
                                 </div>
-                                    <h2 className="mt-3 sm:mt-4 md:mt-6 text-center text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold text-white">AI-Powered</h2>
+                                <h2 className="mt-3 sm:mt-4 md:mt-6 text-center text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold text-white">AI-Powered</h2>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
+                        </SpotlightCard>
+                        <SpotlightCard className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
                             <CardContent className="pt-6">
                                 <div className="relative mx-auto flex aspect-square size-32 rounded-full border border-[#00baff]/30 before:absolute before:-inset-2 before:rounded-full before:border before:border-[#00baff]/20">
                                     <Fingerprint className="m-auto h-16 w-16 text-[#00baff]" strokeWidth={1.5} />
@@ -31,8 +32,8 @@ export function Features() {
                                     <p className="text-white/60 text-sm sm:text-base">Enterprise-grade security with encryption and compliance built into every layer.</p>
                                 </div>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
+                        </SpotlightCard>
+                        <SpotlightCard className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
                             <CardContent className="pt-6">
                                 <div className="pt-6 lg:px-6">
                                     <svg className="w-full" viewBox="0 0 386 123" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -72,8 +73,8 @@ export function Features() {
                                     <p className="text-white/60 text-sm sm:text-base">Lightning-fast AI agents that process data and respond in milliseconds.</p>
                                 </div>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden lg:col-span-3">
+                        </SpotlightCard>
+                        <SpotlightCard className="relative col-span-full overflow-hidden lg:col-span-3">
                             <CardContent className="grid pt-6 sm:grid-cols-2">
                                 <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                                     <div className="relative flex aspect-square size-12 rounded-full border border-[#ffffff]/30 before:absolute before:-inset-2 before:rounded-full before:border before:border-[#ffffff]/20">
@@ -112,8 +113,8 @@ export function Features() {
                                     </svg>
                                 </div>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden lg:col-span-3">
+                        </SpotlightCard>
+                        <SpotlightCard className="relative col-span-full overflow-hidden lg:col-span-3">
                             <CardContent className="grid h-full pt-6 sm:grid-cols-2">
                                 <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                                     <div className="relative flex aspect-square size-12 rounded-full border border-[#ffffff]/30 before:absolute before:-inset-2 before:rounded-full before:border before:border-[#ffffff]/20">
@@ -147,7 +148,7 @@ export function Features() {
                                     </div>
                                 </div>
                             </CardContent>
-                        </Card>
+                        </SpotlightCard>
                     </div>
                 </div>
             </div>
