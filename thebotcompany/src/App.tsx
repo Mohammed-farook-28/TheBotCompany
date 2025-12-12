@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PillNav from './components/PillNav';
 import Logo from './components/Logo';
 
@@ -10,6 +11,7 @@ const About = lazy(() => import('./components/About'));
 const AIFocus = lazy(() => import('./components/AIFocus'));
 const Methodology = lazy(() => import('./components/Methodology'));
 const Services = lazy(() => import('./components/Services'));
+const EventsSection = lazy(() => import('./components/EventsSection'));
 const ContactForm = lazy(() => import('./components/ContactForm'));
 const CTA = lazy(() => import('./components/CTA'));
 const Footer = lazy(() => import('./components/Footer'));
@@ -22,10 +24,13 @@ const LoadingSpinner = () => (
 );
 
 function App() {
+  const navigate = useNavigate();
+  
   const navigationItems = [
     { label: 'Home', href: '#home' },
     { label: 'About', href: '#about' },
     { label: 'Services', href: '#services' },
+    { label: 'Events', href: '/events', isRoute: true },
     { label: 'Contact', href: '#contact' }
   ];
 
@@ -66,6 +71,11 @@ function App() {
         hoveredPillTextColor="#FFFFFF"
         pillTextColor="#000000"
         onMobileMenuClick={() => {}}
+        onItemClick={(item) => {
+          if (item.isRoute) {
+            navigate(item.href);
+          }
+        }}
       />
       
       {/* Animated Hero Section with Pong Game */}
@@ -96,6 +106,9 @@ function App() {
             <Services />
           </Suspense>
         </div>
+        <Suspense fallback={<div className="h-64 bg-black" />}>
+          <EventsSection />
+        </Suspense>
         <div id="contact">
           <Suspense fallback={<div className="h-96 bg-black" />}>
             <ContactForm />
