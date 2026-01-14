@@ -28,7 +28,9 @@ const Footer = () => {
               viewport={{ once: true }}
               className="text-white/60"
             >
-              © 2025 TheBotCompany
+              © 2025 THE BOT COMPANY™
+              <br />
+              BOT VENTURES PRIVATE LIMITED
             </motion.div>
 
             <motion.div

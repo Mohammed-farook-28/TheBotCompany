@@ -275,6 +275,27 @@ const PillNav: React.FC<PillNavProps> = ({
 
   const isRouterLink = (href: string) => href && !isExternalLink(href);
 
+  // Instant scroll function - no transition
+  const smoothScrollTo = (targetId: string) => {
+    const element = document.querySelector(targetId);
+    if (!element) return;
+
+    element.scrollIntoView({ behavior: 'instant' });
+  };
+
+  // Handle nav link clicks for smooth scrolling
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      smoothScrollTo(href);
+      // Close mobile menu if open
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+        toggleMobileMenu();
+      }
+    }
+  };
+
   const cssVars: React.CSSProperties = {
     ['--base' as any]: baseColor,
     ['--pill-bg' as any]: pillColor,
@@ -435,6 +456,7 @@ const PillNav: React.FC<PillNavProps> = ({
                         aria-label={item.ariaLabel || item.label}
                         onMouseEnter={() => handleEnter(i)}
                         onMouseLeave={() => handleLeave(i)}
+                        onClick={(e) => handleNavClick(e, item.href)}
                       >
                         {PillContent}
                       </a>
@@ -516,7 +538,13 @@ const PillNav: React.FC<PillNavProps> = ({
                     style={defaultStyle}
                     onMouseEnter={hoverIn}
                     onMouseLeave={hoverOut}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={(e) => {
+                      if (item.href.startsWith('#')) {
+                        e.preventDefault();
+                        smoothScrollTo(item.href);
+                      }
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     {item.label}
                   </a>
