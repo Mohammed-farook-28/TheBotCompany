@@ -112,14 +112,15 @@ const ContactForm = () => {
     setIsSubmitting(true);
     
     try {
-      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIIhKoroub8YMPoqdQ34E14z0405192OnoySUY8cXkq9wPnWIFQSyX2Aor9B3RPyk/exec';
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzf0e3Q3zmjPx4hf06dIM7_0Dxqy9ezaJLkoz7fFQckp_J-Kwk0wbML_rFnuy8zydw/exec';
       
       // Prepare data for Google Sheets
       const sheetData = {
         timestamp: new Date().toISOString(),                                                                  
         name: formData.name,
         email: formData.email,
-        phone: formData.countryCode + ' ' + formData.phone,
+        countryCode: formData.countryCode || '', // Country code in separate column
+        phone: formData.phone || '', // Phone number without country code in separate column
         budget: 'Not specified', // Budget removed, but keep for backward compatibility with Google Sheets
         timeline: formData.timeline || 'Not specified',
         description: formData.description
@@ -134,6 +135,7 @@ const ContactForm = () => {
           urlParams.append('timestamp', sheetData.timestamp);
           urlParams.append('name', sheetData.name);
           urlParams.append('email', sheetData.email);
+          urlParams.append('countryCode', sheetData.countryCode);
           urlParams.append('phone', sheetData.phone);
           urlParams.append('budget', sheetData.budget);
           urlParams.append('timeline', sheetData.timeline);
@@ -155,6 +157,29 @@ const ContactForm = () => {
           // Error sending to Google Sheets - continue anyway, don't block user experience
           // Error is silently handled to maintain user experience
         }
+      }
+
+      // Send email notification to tharun@thebotcompany.in
+      const EMAIL_API_URL = import.meta.env.VITE_EMAIL_API_URL || 'http://localhost:3001/api/send-lead-notification';
+      try {
+        await fetch(EMAIL_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            countryCode: formData.countryCode || '',
+            phone: formData.phone || '',
+            timeline: formData.timeline || 'Not specified',
+            description: formData.description,
+          }),
+        });
+        // Email notification sent (errors are silently handled to not block user experience)
+      } catch (emailError) {
+        // Error sending email - silently handled to maintain user experience
+        console.log('Email notification error (non-blocking):', emailError);
       }
       
       // Clear saved form data after successful submission
